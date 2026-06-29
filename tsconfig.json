@@ -1,0 +1,25 @@
+{
+	"extends": "astro/tsconfigs/strict",
+	"include": [".astro/types.d.ts", "**/*"],
+	"exclude": ["dist"],
+	"compilerOptions": {
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noImplicitOverride": true,
+		"exactOptionalPropertyTypes": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+
+		"moduleDetection": "force",
+		"erasableSyntaxOnly": true,
+
+		"plugins": [{ "name": "@astrojs/ts-plugin" }],
+
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	}
+}
