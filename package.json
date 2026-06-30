@@ -24,12 +24,29 @@
 		"clean": "rm -rf dist .astro node_modules"
 	},
 	"dependencies": {
-		"astro": "7.0.3"
+		"@astrojs/mdx": "7.0.0",
+		"@astrojs/sitemap": "3.7.3",
+		"astro": "7.0.3",
+		"astro-broken-links-checker": "1.1.0",
+		"astro-expressive-code": "0.44.0",
+		"astro-og-canvas": "0.12.0",
+		"astro-pagefind": "2.0.0",
+		"astro-robots-txt": "1.0.0",
+		"astro-seo": "1.1.0",
+		"astro-seo-schema": "7.0.0"
 	},
 	"devDependencies": {
 		"@astrojs/check": "0.9.9",
 		"@astrojs/ts-plugin": "1.10.9",
 		"@biomejs/biome": "2.5.1",
-		"typescript": "6.0.3"
+		"@iconify-json/simple-icons": "1.2.88",
+		"@unocss/astro": "66.7.4",
+		"@unocss/preset-icons": "66.7.4",
+		"@unocss/preset-typography": "66.7.4",
+		"@unocss/preset-wind4": "66.7.4",
+		"@unocss/transformer-directives": "66.7.4",
+		"@unocss/transformer-variant-group": "66.7.4",
+		"typescript": "6.0.3",
+		"unocss": "66.7.4"
 	}
 }
