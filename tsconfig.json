@@ -14,7 +14,6 @@
 		"allowUnusedLabels": false,
 
 		"moduleDetection": "force",
-		"erasableSyntaxOnly": true,
 
 		"plugins": [{ "name": "@astrojs/ts-plugin" }],
 

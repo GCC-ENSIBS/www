@@ -48,6 +48,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.5.1
         version: 2.5.1
+      '@iconify-json/lucide':
+        specifier: ^1.2.115
+        version: 1.2.115
       '@iconify-json/simple-icons':
         specifier: 1.2.88
         version: 1.2.88
@@ -547,6 +550,9 @@ packages:
 
   '@expressive-code/plugin-text-markers@0.44.0':
     resolution: {integrity: sha512-0/m3A5b+lz2upyNq+wzZ1S69HRoJmyFs5LsR42lVZ9pmGRlBiSBYQpvqlji4DBj1+Riamxc0AvcCr5kuzOQeWA==}
+
+  '@iconify-json/lucide@1.2.115':
+    resolution: {integrity: sha512-plc4npdX0I2RpsE5FFIdkCjGtL9vG09FU/a2nZ+pJ0fFQV6mTqRlbUgZgUgSPDFswq0kaaNT229nW6AQRj5o9w==}
 
   '@iconify-json/simple-icons@1.2.88':
     resolution: {integrity: sha512-+cvi1qCuvReL29ehi6t62L4fb7GDXe+UlGHFcsJcV7I2l9wtqn9XE2IBKcDr3CI5iGUGS5ISnXv699pSGpyx1Q==}
@@ -3276,6 +3282,10 @@ snapshots:
   '@expressive-code/plugin-text-markers@0.44.0':
     dependencies:
       '@expressive-code/core': 0.44.0
+
+  '@iconify-json/lucide@1.2.115':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify-json/simple-icons@1.2.88':
     dependencies:

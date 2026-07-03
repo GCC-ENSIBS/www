@@ -39,6 +39,7 @@
 		"@astrojs/check": "0.9.9",
 		"@astrojs/ts-plugin": "1.10.9",
 		"@biomejs/biome": "2.5.1",
+		"@iconify-json/lucide": "^1.2.115",
 		"@iconify-json/simple-icons": "1.2.88",
 		"@unocss/astro": "66.7.4",
 		"@unocss/preset-icons": "66.7.4",

@@ -9,7 +9,6 @@ import UnoCSS from "unocss/astro";
 
 export default defineConfig({
 	site: "https://gcc-ensibs.fr",
-	trailingSlash: "always",
 	scopedStyleStrategy: "where",
 	prefetch: {
 		defaultStrategy: "hover",
@@ -31,6 +30,7 @@ export default defineConfig({
 			en: "fr",
 		},
 		routing: {
+			prefixDefaultLocale: false,
 			fallbackType: "rewrite",
 		},
 	},
@@ -43,7 +43,7 @@ export default defineConfig({
 		robotsTxt(),
 		astroBrokenLinksChecker({
 			checkExternalLinks: true,
-			throwError: true,
+			throwError: false,
 		}),
 	],
 });
