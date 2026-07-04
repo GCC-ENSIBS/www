@@ -63,6 +63,9 @@ importers:
       '@unocss/preset-typography':
         specifier: 66.7.4
         version: 66.7.4
+      '@unocss/preset-web-fonts':
+        specifier: 66.7.4
+        version: 66.7.4
       '@unocss/preset-wind4':
         specifier: 66.7.4
         version: 66.7.4

@@ -44,6 +44,7 @@
 		"@unocss/astro": "66.7.4",
 		"@unocss/preset-icons": "66.7.4",
 		"@unocss/preset-typography": "66.7.4",
+		"@unocss/preset-web-fonts": "66.7.4",
 		"@unocss/preset-wind4": "66.7.4",
 		"@unocss/transformer-directives": "66.7.4",
 		"@unocss/transformer-variant-group": "66.7.4",
