@@ -7,8 +7,17 @@ import {
 	transformerDirectives,
 	transformerVariantGroup,
 } from "unocss";
+import { presetAnimations } from "unocss-preset-animations";
 
 export default defineConfig({
+	safelist: [
+		"animate-in",
+		"fade-in",
+		"slide-in-from-bottom-2",
+		"slide-in-from-bottom-3",
+		"animate-duration-400",
+		"animate-duration-500",
+	],
 	theme: {
 		colors: {
 			brand: {
@@ -75,6 +84,11 @@ export default defineConfig({
 					weights: [400, 500, 600, 700],
 				},
 			},
+		}),
+		presetAnimations({
+			duration: 400,
+			fillMode: "both",
+			timingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
 		}),
 		presetTypography(),
 		presetIcons({
