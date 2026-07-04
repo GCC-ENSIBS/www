@@ -13,6 +13,8 @@ const staggerClasses = [
 ];
 
 export function revealOnEnter(selector: string) {
+	document.documentElement.dataset.reveal = "enabled";
+
 	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 		document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
 			element.dataset.revealed = "true";
