@@ -44,7 +44,7 @@ export default defineConfig({
 				raised: "oklch(95% 0.003 270)",
 				sunken: "oklch(93% 0.004 270)",
 			},
-			fg: {
+			foreground: {
 				DEFAULT: "oklch(20% 0.005 270)",
 				muted: "oklch(45% 0.005 270)",
 				subtle: "oklch(52% 0.005 270)",
