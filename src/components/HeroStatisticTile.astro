@@ -1,0 +1,8 @@
+---
+const { value } = Astro.props as { value: string };
+---
+
+<div class="min-h-24 rounded-sm bg-paper/80 p-4 dark:bg-surface/6">
+	<span class="block font-display text-2xl font-800 text-foreground dark:text-surface">{value}</span>
+	<slot />
+</div>

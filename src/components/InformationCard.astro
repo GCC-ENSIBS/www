@@ -1,0 +1,10 @@
+---
+const { title } = Astro.props as { title: string };
+---
+
+<div class="rounded-sm bg-paper-raised p-5 dark:bg-ink-raised">
+	<h2 class="font-display text-2xl font-800 tracking-[-0.03em] text-foreground dark:text-surface">{title}</h2>
+	<p class="mt-3 font-sans text-sm font-500 leading-[1.62] text-foreground-muted dark:text-ink-muted">
+		<slot />
+	</p>
+</div>

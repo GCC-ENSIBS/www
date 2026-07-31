@@ -1,0 +1,41 @@
+---
+import { socials } from "@/data/socials";
+import type { Language } from "@/i18n/ui";
+import { useTranslations } from "@/i18n/ui";
+
+const { language } = Astro.props as { language: Language };
+const translateKey = useTranslations(language);
+
+const joinLinks = [
+	{ label: "Discord", href: socials.discord, primary: true },
+	{ label: "YouTube", href: socials.youtube },
+	{ label: "LinkedIn", href: socials.linkedin },
+	{ label: "X", href: socials.x },
+];
+---
+
+<section id="join" class="relative overflow-hidden" style="scroll-margin-top: var(--header-h, 0px);">
+	<div class="mx-auto w-full max-w-[96rem] px-4 pb-20 pt-10 sm:px-6 lg:px-8 lg:pb-28" data-animate-stagger>
+		<div class="relative overflow-hidden rounded-sm bg-foreground p-6 text-paper dark:bg-ink-card dark:text-surface sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.58fr)] lg:gap-16 lg:p-12">
+			<img src="/logo.svg" alt="" loading="lazy" class="absolute -bottom-32 -left-28 h-96 w-96 opacity-[0.06] dark:opacity-[0.10]" />
+			<div class="relative">
+				<h2 class="max-w-[12ch] font-display text-[clamp(2.8rem,6.4vw,5.6rem)] font-900 leading-[0.9] tracking-[-0.04em]" style="--i: 0;">
+					{translateKey("join.title")}
+				</h2>
+
+				<p class="mt-7 max-w-[48ch] font-sans text-[clamp(1.04rem,1.45vw,1.18rem)] font-600 leading-[1.68] text-paper/84 dark:text-surface/84" style="--i: 1;">
+					{translateKey("join.lead")}
+				</p>
+			</div>
+
+			<nav class="relative mt-10 grid gap-2 font-sans text-base font-800 lg:mt-0 lg:self-end" style="--i: 2;" aria-label={translateKey("navigation.join")}>
+				{joinLinks.map((link) => (
+					<a href={link.href} class:list={["group flex min-h-13 items-center justify-between rounded-sm px-4 text-current no-underline transition-colors duration-180 ease-out", link.primary ? "bg-brand text-white hover:text-white" : "bg-paper/9 hover:text-brand-bright"]} rel="me noopener" target="_blank">
+						<span>{link.primary ? translateKey("join.discord") : link.label}<span class="sr-only"> ({translateKey("navigation.external")})</span></span>
+						<span class="i-lucide-arrow-up-right size-4 opacity-70" aria-hidden="true"></span>
+					</a>
+				))}
+			</nav>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,32 @@
+---
+import ActionLink from "@/components/ActionLink.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { localizedPath } from "@/i18n/paths";
+import { getLanguageFromLocale, useTranslations } from "@/i18n/ui";
+import Base from "@/layouts/Base.astro";
+
+const language = getLanguageFromLocale(Astro.currentLocale);
+const translateKey = useTranslations(language);
+---
+
+<Base language={language} title={translateKey("notFound.title")} description={translateKey("notFound.description")} canonicalPath={localizedPath(language, "/404/")}>
+	<Header language={language} />
+	<main id="main" class="relative mx-auto grid min-h-[calc(100svh-var(--header-h,0px))] w-full max-w-[96rem] flex-1 items-center px-4 py-14 sm:px-6 lg:px-8">
+		<section class="w-full animate-in fade-in slide-in-from-bottom-2 animate-duration-500">
+			<div class="relative max-w-[54rem]">
+				<h1 class="max-w-[11ch] font-display text-[clamp(3.2rem,8vw,6rem)] font-900 leading-[0.88] tracking-[-0.04em] text-foreground dark:text-surface">
+					{translateKey("notFound.heading")}
+				</h1>
+				<p class="mt-7 max-w-[48ch] font-sans text-[clamp(1.04rem,1.45vw,1.18rem)] font-600 leading-[1.65] text-foreground-muted dark:text-ink-muted">
+					{translateKey("notFound.lead")}
+				</p>
+				<div class="mt-9 flex flex-wrap gap-3">
+					<ActionLink href={localizedPath(language, "/")} variant="primary">{translateKey("notFound.home")}</ActionLink>
+					<ActionLink href={localizedPath(language, "/blog/")}>{translateKey("notFound.blog")}</ActionLink>
+				</div>
+			</div>
+		</section>
+	</main>
+	<Footer language={language} />
+</Base>

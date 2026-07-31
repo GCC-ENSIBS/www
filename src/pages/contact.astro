@@ -1,0 +1,65 @@
+---
+import ActionLink from "@/components/ActionLink.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import InformationCard from "@/components/InformationCard.astro";
+import SocialLink from "@/components/SocialLink.astro";
+import { socials } from "@/data/socials";
+import { localizedPath } from "@/i18n/paths";
+import { getLanguageFromLocale, useTranslations } from "@/i18n/ui";
+import Base from "@/layouts/Base.astro";
+
+const language = getLanguageFromLocale(Astro.currentLocale);
+const translateKey = useTranslations(language);
+
+const canonicalPath = localizedPath(language, "/contact/");
+const socialLinks = [
+	{ label: "YouTube", href: socials.youtube, icon: "i-simple-icons-youtube" },
+	{ label: "LinkedIn", href: socials.linkedin, icon: "i-simple-icons-linkedin" },
+	{ label: "GitHub", href: socials.github, icon: "i-simple-icons-github" },
+	{ label: "X", href: socials.x, icon: "i-simple-icons-x" },
+];
+---
+
+<Base language={language} title={translateKey("contact.title")} description={translateKey("contact.description")} canonicalPath={canonicalPath}>
+	<Header language={language} />
+	<main id="main" class="relative mx-auto grid min-h-[calc(100svh-var(--header-h,0px))] w-full max-w-[96rem] flex-1 content-center px-4 py-10 sm:px-6 lg:px-8">
+		<section class="relative grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.5fr)] lg:items-stretch lg:gap-5">
+			<div class="p-0 animate-in fade-in slide-in-from-bottom-2 animate-duration-500 lg:py-6">
+				<h1 class="max-w-[13ch] font-display text-[clamp(3.2rem,7.8vw,6rem)] font-900 leading-[0.88] tracking-[-0.04em] text-foreground dark:text-surface">
+					{translateKey("contact.heading")}
+				</h1>
+				<p class="mt-7 max-w-[58ch] font-sans text-[clamp(1.05rem,1.5vw,1.24rem)] font-600 leading-[1.68] text-foreground-muted dark:text-ink-muted">
+					{translateKey("contact.lead")}
+				</p>
+
+				<div class="mt-8 flex flex-wrap gap-3">
+					<ActionLink href={socials.discord} variant="primary" external externalLabel={translateKey("navigation.external")}>
+						{translateKey("contact.discord")}
+					</ActionLink>
+					<ActionLink href={`mailto:${socials.email}`}>
+						{translateKey("contact.mail")}
+					</ActionLink>
+				</div>
+			</div>
+
+			<aside class="grid content-start gap-3 animate-in fade-in slide-in-from-bottom-3 animate-duration-500">
+				<div class="relative overflow-hidden rounded-sm bg-foreground p-5 text-paper dark:bg-ink-card dark:text-surface">
+					<p class="font-display text-[clamp(2rem,4vw,3.2rem)] font-900 leading-[0.9] tracking-[-0.04em]">{translateKey("contact.boardCard")}</p>
+					<a href={`mailto:${socials.email}`} class="mt-8 flex min-h-11 items-center break-all font-sans text-sm font-700 tracking-[-0.01em] text-paper/84 no-underline transition-colors hover:text-paper dark:text-surface/84 dark:hover:text-surface">{socials.email}</a>
+				</div>
+				<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+					<InformationCard title={translateKey("contact.students")}>{translateKey("contact.studentsText")}</InformationCard>
+					<InformationCard title={translateKey("contact.events")}>{translateKey("contact.eventsText")}</InformationCard>
+				</div>
+			</aside>
+		</section>
+
+		<nav class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={translateKey("navigation.social")}>
+			{socialLinks.map((link) => (
+				<SocialLink href={link.href} label={link.label} icon={link.icon} externalLabel={translateKey("navigation.external")} />
+			))}
+		</nav>
+	</main>
+	<Footer language={language} />
+</Base>

@@ -1,17 +1,132 @@
 ---
+import { getCollection } from "astro:content";
+import ActionLink from "@/components/ActionLink.astro";
+import ActivitySection from "@/components/ActivitySection.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Hero from "@/components/Hero.astro";
+import JoinSection from "@/components/JoinSection.astro";
+import { localizedPath } from "@/i18n/paths";
+import { getLanguageFromLocale, languageLocale, useTranslations } from "@/i18n/ui";
+import Base from "@/layouts/Base.astro";
+
+const language = getLanguageFromLocale(Astro.currentLocale);
+const translateKey = useTranslations(language);
+const canonicalPath = localizedPath(language, "/");
+const blogBase = localizedPath(language, "/blog/");
+const entries = (await getCollection("blog"))
+	.filter((entry) => entry.id.startsWith(`${language}/`))
+	.sort((a, b) => b.data.publicationDate.getTime() - a.data.publicationDate.getTime())
+	.slice(0, 3);
+const [featuredEntry, ...secondaryEntries] = entries;
+
+function slugFromId(id: string) {
+	return id.split("/").at(-1)?.replace(/\.mdx?$/, "") ?? id;
+}
+
+function formatDate(date: Date) {
+	return new Intl.DateTimeFormat(languageLocale(language), { month: "short", day: "2-digit", year: "numeric" }).format(date);
+}
 
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+	language={language}
+	title={translateKey("page.home.title")}
+	description={translateKey("page.home.description")}
+	canonicalPath={canonicalPath}
+>
+	<Header language={language} />
+	<main id="main" class="flex-1">
+		<Hero language={language} />
+		<ActivitySection language={language} />
+		<section class="mx-auto w-full max-w-[96rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-24" data-animate-stagger>
+			<div class="grid gap-8 lg:grid-cols-[minmax(0,0.62fr)_minmax(0,1fr)] lg:gap-16 lg:items-start">
+				<div style="--i: 0;">
+					<h2 class="max-w-[11ch] font-display text-[clamp(2.95rem,6.4vw,5.5rem)] font-900 leading-[0.88] tracking-[-0.04em] text-foreground dark:text-surface">
+						{translateKey("home.latest.title")}
+					</h2>
+					<p class="mt-6 max-w-[42ch] font-sans text-base font-500 leading-[1.7] text-foreground-muted dark:text-ink-muted">
+						{translateKey("home.latest.lead")}
+					</p>
+					<ActionLink href={blogBase} variant="primary" class="mt-8 px-4">
+						{translateKey("hero.callToAction.blog")}
+					</ActionLink>
+				</div>
+
+				<div class="grid gap-3" style="--i: 1;">
+					{featuredEntry && (
+						<a href={`${blogBase}${slugFromId(featuredEntry.id)}/`} class="group relative grid min-h-[18rem] overflow-hidden rounded-sm bg-foreground text-paper no-underline transition-colors duration-180 dark:bg-ink-card dark:text-surface">
+							<img src="/logo.svg" alt="" loading="lazy" class="absolute -right-18 -top-24 h-72 w-72 rotate-12 opacity-[0.08] dark:opacity-[0.10]" />
+							<div class="p-5 sm:p-6">
+								<div class="font-sans text-xs font-800 tracking-[-0.01em] text-paper/82 dark:text-surface/82">{formatDate(featuredEntry.data.publicationDate)}</div>
+								<h3 class="mt-8 max-w-[16ch] font-display text-[clamp(2rem,4vw,3.4rem)] font-900 leading-[0.92] tracking-[-0.04em] transition-colors group-hover:text-paper dark:group-hover:text-surface">{featuredEntry.data.title}</h3>
+								<p class="mt-5 line-clamp-3 max-w-[52ch] font-sans text-sm font-600 leading-[1.65] text-paper/84 dark:text-surface/84">{featuredEntry.data.description}</p>
+							</div>
+						</a>
+					)}
+					{secondaryEntries.map((entry) => (
+						<a href={`${blogBase}${slugFromId(entry.id)}/`} class="group flex h-[12rem] flex-col border-t border-border/70 py-5 text-inherit no-underline transition-colors duration-180 last:border-b dark:border-surface/14">
+							<div class="font-sans text-xs font-800 tracking-[-0.01em] text-foreground-subtle dark:text-ink-subtle">{formatDate(entry.data.publicationDate)}</div>
+							<div class="mt-5 min-h-0">
+								<h3 class="line-clamp-2 max-w-[34ch] font-display text-[clamp(1.35rem,2.3vw,2.1rem)] font-800 leading-[1.02] tracking-[-0.03em] text-foreground transition-colors group-hover:text-brand-deep dark:text-surface dark:group-hover:text-brand-bright">{entry.data.title}</h3>
+								<p class="mt-3 line-clamp-2 max-w-[60ch] font-sans text-sm font-500 leading-[1.6] text-foreground-muted dark:text-ink-muted">{entry.data.description}</p>
+							</div>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+		<JoinSection language={language} />
+	</main>
+	<Footer language={language} />
+</Base>
+
+<script>
+	import { revealOnEnter } from "@/scripts/reveal";
+
+	revealOnEnter("[data-animate], [data-animate-stagger], [data-animate-hairline]");
+</script>
+
+<style is:global>
+	html[data-reveal="enabled"] [data-animate] {
+		opacity: 0;
+	}
+
+	html[data-reveal="enabled"] [data-animate][data-revealed="true"] {
+		opacity: 1;
+	}
+
+	html[data-reveal="enabled"] [data-animate-stagger] > * {
+		opacity: 0;
+	}
+
+	html[data-reveal="enabled"] [data-animate-stagger][data-revealed="true"] > * {
+		opacity: 1;
+	}
+
+	[data-animate-hairline] {
+		transform: scaleX(1);
+		transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+	}
+
+	html[data-reveal="enabled"] [data-animate-hairline] {
+		transform: scaleX(0);
+	}
+
+	html[data-reveal="enabled"] [data-animate-hairline][data-revealed="true"] {
+		transform: scaleX(1);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html[data-reveal="enabled"] [data-animate],
+		html[data-reveal="enabled"] [data-animate-stagger] > *,
+		html[data-reveal="enabled"] [data-animate-hairline] {
+			opacity: 1;
+		}
+
+		html[data-reveal="enabled"] [data-animate-hairline] {
+			transform: scaleX(1);
+		}
+	}
+</style>

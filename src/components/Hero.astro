@@ -1,0 +1,62 @@
+---
+import ActionLink from "@/components/ActionLink.astro";
+import HeroStatisticTile from "@/components/HeroStatisticTile.astro";
+import { socials } from "@/data/socials";
+import { localizedPath } from "@/i18n/paths";
+import type { Language } from "@/i18n/ui";
+import { useTranslations } from "@/i18n/ui";
+
+const { language } = Astro.props as { language: Language };
+const translateKey = useTranslations(language);
+---
+
+<section id="hero" class="relative overflow-hidden" style="scroll-margin-top: var(--header-h, 0px);">
+	<div class="mx-auto grid min-h-[calc(100svh-var(--header-h,0px))] w-full max-w-[96rem] gap-10 px-4 pb-12 pt-10 sm:px-6 lg:grid-cols-[minmax(0,0.98fr)_minmax(24rem,0.62fr)] lg:items-center lg:gap-16 lg:px-8 lg:pb-20 lg:pt-14" data-animate-stagger>
+		<div class="relative z-1">
+			<h1 class="max-w-[13ch] font-display text-[clamp(3.05rem,13vw,6rem)] font-900 leading-[0.88] tracking-[-0.04em] text-foreground dark:text-surface" style="--i: 0;" aria-label={`${translateKey("hero.line1")} ${translateKey("hero.line2")} ${translateKey("hero.line3")}.`}>
+				<span class="block">{translateKey("hero.line1")}</span>
+				<span class="block">{translateKey("hero.line2")}</span>
+				<span class="block text-brand">{translateKey("hero.line3")}<span class="text-foreground dark:text-surface">.</span></span>
+			</h1>
+
+			<p class="mt-8 max-w-[52ch] font-sans text-[clamp(1.08rem,1.55vw,1.32rem)] font-600 leading-[1.6] text-foreground-muted dark:text-ink-muted" style="--i: 1;">
+				{translateKey("hero.description")}
+			</p>
+
+			<div class="mt-9 flex flex-wrap items-center gap-3" style="--i: 2;">
+				<ActionLink href={socials.discord} variant="primary" external externalLabel={translateKey("navigation.external")} class="group gap-2 text-[15px]">
+					<span>{translateKey("hero.callToAction.discord")}</span>
+					<span class="i-lucide-arrow-right size-4" aria-hidden="true"></span>
+				</ActionLink>
+				<ActionLink href={localizedPath(language, "/blog/")} class="px-4 text-[15px] font-700">
+					{translateKey("hero.callToAction.blog")}
+				</ActionLink>
+			</div>
+		</div>
+
+		<div class="relative min-h-[24rem] sm:min-h-[36.25rem]" style="--i: 3;">
+			<div class="absolute inset-0 overflow-hidden rounded-sm bg-paper-raised dark:bg-ink-raised">
+				<img src="/logo.svg" alt="" loading="eager" fetchpriority="high" class="absolute -right-24 -top-20 h-[28rem] w-[28rem] rotate-[-16deg] opacity-[0.13] dark:opacity-[0.10]" />
+				<div class="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,oklch(94%_0.006_270),transparent)] dark:bg-[linear-gradient(to_top,oklch(18%_0.014_270),transparent)]"></div>
+			</div>
+
+			<div class="relative grid h-full min-h-[24rem] content-between gap-6 p-5 sm:min-h-[36.25rem] sm:p-6 lg:p-7">
+				<span></span>
+
+				<div class="min-h-[13.5rem]">
+					<p class="max-w-[11ch] font-display text-[clamp(2.5rem,4.6vw,4rem)] font-900 leading-[0.9] tracking-[-0.04em] text-foreground dark:text-surface">{translateKey("hero.panel.title")}</p>
+					<p class="mt-5 max-w-[34ch] font-sans text-base font-500 leading-[1.65] text-foreground-muted dark:text-ink-muted">
+						{translateKey("hero.panel.lead")}
+					</p>
+				</div>
+
+				<div class="grid grid-cols-2 gap-3 font-sans text-xs font-600 text-foreground-muted dark:text-ink-muted">
+					<HeroStatisticTile value="150+">{translateKey("hero.panel.members")}</HeroStatisticTile>
+					<HeroStatisticTile value="1/mois">{translateKey("hero.panel.workshop")}</HeroStatisticTile>
+					<HeroStatisticTile value="500+">{translateKey("hero.panel.ctf")}</HeroStatisticTile>
+					<HeroStatisticTile value="FR/EN">{translateKey("hero.panel.writeups")}</HeroStatisticTile>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

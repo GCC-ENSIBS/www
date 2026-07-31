@@ -1,0 +1,121 @@
+---
+import { localizedPath } from "@/i18n/paths";
+import { languageLocale, useTranslations } from "@/i18n/ui";
+
+const { language, title, description, canonicalPath = localizedPath(language, "/") } = Astro.props;
+const htmlLanguage = languageLocale(language);
+const dataLanguage = language;
+const translateKey = useTranslations(language);
+
+const canonicalURL = new URL(canonicalPath, Astro.site);
+const pathWithoutLanguage = canonicalPath.startsWith("/en/") ? canonicalPath.slice(3) || "/" : canonicalPath;
+const englishPath = pathWithoutLanguage === "/" ? "/en/" : `/en${pathWithoutLanguage}`;
+---
+
+<!doctype html>
+<html lang={htmlLanguage} data-lang={dataLanguage} class="dark">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href={canonicalURL} />
+		<link rel="alternate" hreflang="fr" href={new URL(pathWithoutLanguage, Astro.site)} />
+		<link rel="alternate" hreflang="en" href={new URL(englishPath, Astro.site)} />
+		<link rel="alternate" hreflang="x-default" href={new URL("/", Astro.site)} />
+		<meta name="theme-color" content="#191923" id="theme-color-meta" />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		{description && <meta property="og:description" content={description} />}
+		<meta property="og:url" content={canonicalURL} />
+
+		<script is:inline>
+			(() => {
+				try {
+					const stored = localStorage.getItem("theme");
+					const isLight = stored === "light";
+					document.documentElement.classList.toggle("dark", !isLight);
+					const themeColorMeta = document.getElementById("theme-color-meta");
+					if (themeColorMeta) {
+						themeColorMeta.setAttribute("content", isLight ? "#f4f4f6" : "#191923");
+					}
+				} catch (_) {}
+			})();
+		</script>
+
+		<title>{title}</title>
+		{description && <meta name="description" content={description} />}
+	</head>
+	<body
+		class="min-h-screen bg-paper text-foreground font-sans antialiased dark:bg-ink dark:text-ink-muted"
+	>
+		<a
+			href="#main"
+			class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-white"
+		>
+			{translateKey("skip.content")}
+		</a>
+
+		<div class="flex flex-col min-h-screen">
+			<slot />
+		</div>
+
+	</body>
+</html>
+
+<style is:global>
+	@layer base {
+		html {
+			font-size: 100%;
+			-webkit-text-size-adjust: 100%;
+			font-optical-sizing: auto;
+			scroll-behavior: smooth;
+		}
+
+		body {
+			font-feature-settings: "kern";
+			font-kerning: normal;
+			text-rendering: optimizeLegibility;
+		}
+
+		h1, h2, h3 {
+			text-wrap: balance;
+		}
+
+		p {
+			text-wrap: pretty;
+		}
+
+		::selection {
+			background: oklch(62% 0.22 27 / 0.3);
+			color: white;
+		}
+
+		:focus-visible {
+			outline: 2px solid oklch(62% 0.22 27);
+			outline-offset: 3px;
+			border-radius: 1px;
+		}
+
+		a {
+			text-decoration-thickness: 1px;
+			text-underline-offset: 0.22em;
+		}
+
+		.dark ::-webkit-scrollbar { width: 10px; }
+		.dark ::-webkit-scrollbar-track { background: oklch(12% 0.004 270); }
+		.dark ::-webkit-scrollbar-thumb { background: oklch(25% 0.005 270); border-radius: 5px; }
+		.dark ::-webkit-scrollbar-thumb:hover { background: oklch(35% 0.005 270); }
+
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		* {
+			animation-duration: 0.01ms;
+			animation-iteration-count: 1;
+			transition-duration: 0.01ms;
+		}
+		html {
+			scroll-behavior: auto;
+		}
+	}
+</style>

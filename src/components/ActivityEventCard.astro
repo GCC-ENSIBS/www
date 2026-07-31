@@ -1,0 +1,20 @@
+---
+const { year, title, description } = Astro.props as {
+	year: string;
+	title: string;
+	description: string;
+};
+---
+
+<article class="group min-h-[13rem] border-t border-border/70 py-5 transition-colors duration-180 ease-out dark:border-surface/14">
+	<div class="flex items-center justify-between gap-4">
+		<span class="font-sans text-xs font-900 tracking-[-0.01em] text-brand-deep dark:text-brand-bright">{year}</span>
+		<span class="h-2 w-2 rounded-full bg-brand opacity-75"></span>
+	</div>
+	<h4 class="mt-10 max-w-[15ch] font-display text-[clamp(1.45rem,2.8vw,2.2rem)] font-800 leading-[0.98] tracking-[-0.03em] text-foreground dark:text-surface">
+		{title}
+	</h4>
+	<p class="mt-4 max-w-[36ch] font-sans text-sm font-500 leading-[1.6] text-foreground-muted dark:text-ink-muted">
+		{description}
+	</p>
+</article>

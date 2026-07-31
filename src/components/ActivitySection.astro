@@ -1,0 +1,86 @@
+---
+import ActionLink from "@/components/ActionLink.astro";
+import ActivityEventCard from "@/components/ActivityEventCard.astro";
+import { localizedPath } from "@/i18n/paths";
+import type { Language } from "@/i18n/ui";
+import { type UIKey, useTranslations } from "@/i18n/ui";
+
+const { language } = Astro.props as { language: Language };
+const translateKey = useTranslations(language);
+
+const rhythm: Array<{ labelKey: UIKey; detailKey: UIKey }> = [
+	{ labelKey: "activity.rhythm.talks.label", detailKey: "activity.rhythm.talks.detail" },
+	{ labelKey: "activity.rhythm.workshops.label", detailKey: "activity.rhythm.workshops.detail" },
+	{ labelKey: "activity.rhythm.ctfs.label", detailKey: "activity.rhythm.ctfs.detail" },
+	{ labelKey: "activity.rhythm.notes.label", detailKey: "activity.rhythm.notes.detail" },
+];
+
+const events: Array<{ year: string; key: UIKey; descriptionKey: UIKey }> = [
+	{ year: "2026", key: "activity.events.breizhCtf.name", descriptionKey: "activity.events.breizhCtf.description" },
+	{ year: "2025", key: "activity.events.noBracketsCtf.name", descriptionKey: "activity.events.noBracketsCtf.description" },
+	{ year: "2024", key: "activity.events.gccCtf.name", descriptionKey: "activity.events.gccCtf.description" },
+	{ year: "1/mois", key: "activity.events.workshops.name", descriptionKey: "activity.events.workshops.description" },
+];
+---
+
+<section id="capabilities" class="relative" style="scroll-margin-top: var(--header-h, 0px);">
+	<div class="mx-auto w-full max-w-[96rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+		<div class="grid gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)] lg:gap-16">
+			<div class="lg:sticky lg:top-28 lg:self-start" data-animate-stagger>
+				<h2 class="max-w-[12ch] font-display text-[clamp(2.8rem,6.6vw,5.4rem)] font-900 leading-[0.9] tracking-[-0.04em] text-foreground dark:text-surface" style="--i: 0;">
+					{translateKey("activity.intro.title")}
+				</h2>
+				<p class="mt-7 max-w-[52ch] font-sans text-[clamp(1.06rem,1.4vw,1.22rem)] font-500 leading-[1.65] text-foreground-muted dark:text-ink-muted" style="--i: 1;">
+					{translateKey("activity.intro.lead")}
+				</p>
+			</div>
+
+			<div class="grid gap-4" data-animate-stagger>
+				<article class="grid gap-8 rounded-sm bg-foreground p-6 text-paper dark:bg-ink-card dark:text-surface sm:p-8 lg:grid-cols-[minmax(0,0.58fr)_minmax(0,0.72fr)]" style="--i: 0;">
+					<div>
+						<h3 class="font-display text-[clamp(2.1rem,4vw,3.5rem)] font-900 leading-[0.95] tracking-[-0.04em]">{translateKey("activity.rhythm.title")}</h3>
+						<p class="mt-5 max-w-[40ch] font-sans text-base font-600 leading-[1.6] text-paper/82 dark:text-surface/82">
+							{translateKey("activity.rhythm.lead")}
+						</p>
+					</div>
+					<ul class="grid content-end font-sans">
+						{rhythm.map((item) => (
+							<li class="grid gap-1 border-t border-paper/16 py-4 first:border-t-0 dark:border-surface/14">
+								<span class="font-display text-xl font-800 leading-none tracking-[-0.03em] text-paper dark:text-surface">{translateKey(item.labelKey)}</span>
+								<span class="font-sans text-sm font-600 leading-[1.45] text-paper/78 dark:text-surface/78">{translateKey(item.detailKey)}</span>
+							</li>
+						))}
+					</ul>
+				</article>
+
+				<article class="relative overflow-hidden rounded-sm bg-paper-raised p-6 dark:bg-ink-raised sm:p-8" style="--i: 1;">
+					<img src="/logo.svg" alt="" loading="lazy" class="absolute -right-20 -top-24 h-72 w-72 rotate-12 opacity-[0.10] dark:opacity-[0.08]" />
+					<div class="relative max-w-[46rem]">
+						<h3 class="max-w-[16ch] font-display text-[clamp(2.2rem,4.8vw,4.2rem)] font-900 leading-[0.92] tracking-[-0.04em] text-foreground dark:text-surface">
+							{translateKey("activity.events.title")}
+						</h3>
+						<p class="mt-6 max-w-[58ch] font-sans text-base font-500 leading-[1.7] text-foreground-muted dark:text-ink-muted">
+							{translateKey("activity.events.summary")}
+						</p>
+					</div>
+				</article>
+
+				<div class="grid gap-x-8 sm:grid-cols-2" style="--i: 2;">
+					{events.map((event) => (
+						<ActivityEventCard year={event.year} title={translateKey(event.key)} description={translateKey(event.descriptionKey)} />
+					))}
+				</div>
+
+				<div class="grid max-w-[42rem] justify-items-start gap-3" style="--i: 3;">
+					<p class="font-sans text-sm font-600 leading-[1.6] text-foreground-muted dark:text-ink-muted">
+						{translateKey("activity.contactLead")}
+					</p>
+					<ActionLink href={localizedPath(language, "/contact/")} class="gap-2 px-4 py-3">
+						{translateKey("activity.contactLink")}
+						<span class="i-lucide-arrow-right size-4" aria-hidden="true"></span>
+					</ActionLink>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,260 @@
+---
+import { getCollection } from "astro:content";
+import BlogTag from "@/components/BlogTag.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { localizedPath } from "@/i18n/paths";
+import { getLanguageFromLocale, languageLocale, useTranslations } from "@/i18n/ui";
+import Base from "@/layouts/Base.astro";
+
+const language = getLanguageFromLocale(Astro.currentLocale);
+const translateKey = useTranslations(language);
+
+const entries = (await getCollection("blog"))
+	.filter((entry) => entry.id.startsWith(`${language}/`))
+	.sort((a, b) => b.data.publicationDate.getTime() - a.data.publicationDate.getTime());
+
+const categories = Array.from(new Set(entries.flatMap((entry) => entry.data.categories))).sort();
+const canonicalPath = localizedPath(language, "/blog/");
+const categoryClass =
+	"cat pressable inline-flex h-11 items-center justify-center rounded-sm bg-paper-sunken px-4 py-0 font-sans text-[13.5px] font-800 leading-none tracking-[-0.01em] text-foreground transition-colors duration-180 ease-out hover:text-brand-deep dark:bg-surface/8 dark:text-surface dark:hover:text-brand-bright [&.is-active]:bg-foreground [&.is-active]:text-paper [&.is-active]:hover:text-paper dark:[&.is-active]:bg-surface dark:[&.is-active]:text-ink dark:[&.is-active]:hover:text-ink";
+const activeCategoryClass = "is-active";
+const baseArticleClass = "blog-card group rounded-sm bg-paper-raised p-5 text-inherit no-underline transition-colors duration-180 ease-out dark:bg-ink-raised animate-in fade-in slide-in-from-bottom-2 animate-duration-500";
+
+function slugFromId(id: string) {
+	return id.split("/").at(-1)?.replace(/\.mdx?$/, "") ?? id;
+}
+
+function formatMonth(date: Date) {
+	return new Intl.DateTimeFormat(languageLocale(language), { month: "2-digit", year: "numeric" }).format(date);
+}
+
+---
+
+<Base language={language} title={translateKey("blog.title")} description={translateKey("blog.description")} canonicalPath={canonicalPath}>
+	<Header language={language} />
+	<main id="main" class="relative mx-auto w-full max-w-[96rem] flex-1 px-4 py-12 sm:px-6 lg:px-8 lg:py-18">
+		<section class="relative pb-10">
+			<div class="animate-in fade-in slide-in-from-bottom-2 animate-duration-500">
+				<h1 class="max-w-[14ch] font-display text-[clamp(3.25rem,7.4vw,5.6rem)] font-900 leading-[0.88] tracking-[-0.04em] text-foreground dark:text-surface">{translateKey("blog.heading")}</h1>
+			</div>
+			<p class="mt-6 max-w-[48rem] font-sans text-[clamp(1.04rem,1.45vw,1.2rem)] font-500 leading-[1.65] text-foreground-muted dark:text-ink-muted animate-in fade-in slide-in-from-bottom-3 animate-duration-500">{translateKey("blog.lead")}</p>
+		</section>
+
+		<section class="relative mt-2 grid gap-4 rounded-sm bg-paper-raised p-3 dark:bg-ink-raised lg:grid-cols-[minmax(18rem,30rem)_1fr] lg:items-center">
+			<label for="gcc-search" class="sr-only" aria-label={translateKey("blog.searchLabel")}>{translateKey("blog.searchLabel")}</label>
+			<input id="gcc-search" type="text" placeholder={translateKey("blog.search")} aria-label={translateKey("blog.search")} class="min-h-14 w-full rounded-sm bg-paper px-4 font-sans text-[17px] font-600 text-foreground outline-none ring-0 transition-[box-shadow,color,background-color] duration-180 placeholder:text-foreground-muted focus:bg-paper focus:ring-2 focus:ring-inset focus:ring-brand dark:bg-ink dark:text-surface dark:placeholder:text-ink-muted dark:focus:bg-ink dark:focus:ring-brand-bright" />
+			<fieldset class="flex flex-wrap gap-2 border-0 p-0 lg:justify-end">
+				<legend class="sr-only">{translateKey("blog.categories")}</legend>
+				<button class={`${categoryClass} ${activeCategoryClass}`} type="button" data-category="all" aria-pressed="true">{translateKey("blog.all")}</button>
+				{categories.map((category) => <button class={categoryClass} type="button" data-category={category.toLowerCase()} aria-pressed="false">{category}</button>)}
+			</fieldset>
+		</section>
+
+
+		<div id="gcc-results-status" class="sr-only" role="status" aria-live="polite" data-label={translateKey("blog.resultsStatus")}></div>
+
+		<div id="gcc-no-results" class="mt-8 hidden py-10">
+			<div class="relative max-w-[48rem]">
+				<p class="max-w-[28ch] font-display text-[clamp(1.75rem,3.4vw,2.8rem)] font-900 leading-[0.94] tracking-[-0.04em] text-foreground dark:text-surface">{translateKey("blog.noResults")}</p>
+				<p class="mt-3 max-w-[48ch] font-sans text-[15px] font-600 leading-[1.65] text-foreground-muted dark:text-ink-muted">{translateKey("blog.noResultsHint")}</p>
+			</div>
+		</div>
+
+		<section id="gcc-rows" class="mt-8 grid gap-3 pb-16 lg:grid-cols-2">
+			{entries.map((entry, index) => (
+				<a class={`${baseArticleClass} ${index === 0 ? "is-featured" : ""}`} href={`${canonicalPath}${slugFromId(entry.id)}/`} data-categories={JSON.stringify(entry.data.categories.map((category) => category.toLowerCase()))} style={`animation-delay: ${Math.min(index * 35, 280)}ms`}>
+					<div class="relative flex h-full flex-col">
+						<div class="flex items-center justify-between gap-4">
+							<span class="blog-card-date font-sans text-xs font-700 tracking-[-0.01em] text-foreground-subtle dark:text-ink-subtle">{formatMonth(entry.data.publicationDate)}</span>
+							<span class="flex flex-wrap justify-end gap-2">
+								{entry.data.categories.slice(0, 2).map((category) => <BlogTag class="blog-card-tag min-h-7 px-2.5 font-700">{category}</BlogTag>)}
+							</span>
+						</div>
+						<h2 class="blog-card-title mt-8 max-w-[22ch] font-display text-[clamp(1.55rem,2.8vw,2.45rem)] font-800 leading-[1.02] tracking-[-0.03em] text-foreground transition-colors group-hover:text-brand-deep dark:text-surface dark:group-hover:text-brand-bright">
+							{entry.data.title}
+						</h2>
+						<p class="blog-card-description mt-4 line-clamp-3 max-w-[56ch] font-sans text-[15px] leading-[1.55] text-foreground-muted dark:text-ink-muted">{entry.data.description}</p>
+						<span class="blog-card-read mt-auto hidden pt-8 font-sans text-xs font-800 tracking-[-0.01em] text-foreground-subtle dark:text-ink-subtle">{translateKey("blog.readArticle")}</span>
+					</div>
+				</a>
+			))}
+		</section>
+	</main>
+	<Footer language={language} />
+</Base>
+
+<script>
+	const search = document.getElementById("gcc-search") as HTMLInputElement | null;
+	const noResults = document.getElementById("gcc-no-results");
+	const resultsStatus = document.getElementById("gcc-results-status");
+	const rows = Array.from(document.querySelectorAll<HTMLElement>("#gcc-rows a"));
+	const categories = Array.from(document.querySelectorAll<HTMLButtonElement>(".cat"));
+	const activeClasses = ["is-active"];
+	let activeCategory = "all";
+	let pagefindResults: string[] = [];
+	let pagefindModule: unknown = null;
+
+	const setFeaturedRow = () => {
+		const firstVisible = rows.find((row) => !row.hidden);
+		rows.forEach((row) => {
+			row.classList.toggle("is-featured", row === firstVisible);
+		});
+	};
+
+	const loadPagefind = async () => {
+		if (pagefindModule) return pagefindModule;
+		
+		const pf = await import(/* @vite-ignore */ `${import.meta.env.BASE_URL}pagefind/pagefind.js`);
+		pagefindModule = pf;
+		await pf.init();
+		return pf;
+	};
+
+	const getPagefindResults = async (query: string): Promise<string[]> => {
+		const pf = await loadPagefind();
+		const searchResult = await pf.debouncedSearch(query);
+		if (!searchResult?.results) return [];
+		const results = await Promise.all(searchResult.results.map((r) => r.data()));
+		return results.map((r) => {
+			const url = r.url;
+			const base = url.replace(/^\/en/, "").replace(/\/$/, "");
+			return base || "/";
+		});
+	};
+
+	const updateRows = async () => {
+		const query = search?.value.trim() ?? "";
+		
+		if (query.length === 0) {
+			pagefindResults = [];
+		} else {
+			pagefindResults = await getPagefindResults(query);
+		}
+
+		let visible = 0;
+		rows.forEach((row) => {
+			const href = row.getAttribute("href") || "";
+			const hrefBase = href.replace(/^\/en/, "").replace(/\/$/, "");
+			const rowCategories = JSON.parse(row.dataset.categories ?? "[]") as string[];
+			const matchesCategory = activeCategory === "all" || rowCategories.includes(activeCategory);
+			
+			let show = false;
+			if (pagefindResults.length === 0) {
+				show = matchesCategory;
+			} else {
+				const matchesSearch = pagefindResults.includes(hrefBase);
+				show = matchesSearch && matchesCategory;
+			}
+			
+			row.hidden = !show;
+			if (show) visible += 1;
+		});
+		
+		noResults?.classList.toggle("hidden", visible !== 0);
+		if (resultsStatus) resultsStatus.textContent = `${visible} ${resultsStatus.dataset.label ?? "articles"}`;
+		setFeaturedRow();
+	};
+
+	search?.addEventListener("input", updateRows);
+	categories.forEach((button) => {
+		button.addEventListener("click", () => {
+			activeCategory = button.dataset.category ?? "all";
+			categories.forEach((item) => {
+				item.setAttribute("aria-pressed", String(item === button));
+				activeClasses.forEach((className) => {
+					item.classList.toggle(className, item === button);
+				});
+			});
+			updateRows();
+		});
+	});
+	setFeaturedRow();
+	
+	search?.addEventListener("focus", async () => {
+		if (pagefindModule && search?.value.trim()) {
+			await pagefindModule.preload(search.value.trim());
+		}
+	});
+</script>
+
+<style is:global>
+	.blog-card {
+		min-height: 15rem;
+	}
+
+	.cat {
+		background: oklch(88% 0.009 270);
+		color: oklch(20% 0.012 270);
+	}
+
+	.cat.is-active {
+		background: oklch(20% 0.012 270);
+		color: oklch(97% 0.004 270);
+	}
+
+	html.dark .cat {
+		background: color-mix(in oklab, oklch(94% 0.006 270) 13%, transparent);
+		color: oklch(94% 0.006 270);
+	}
+
+	html.dark .cat.is-active {
+		background: oklch(94% 0.006 270);
+		color: oklch(14% 0.012 270);
+	}
+
+	.blog-card-tag {
+		background: oklch(88% 0.009 270);
+		color: oklch(20% 0.012 270);
+	}
+
+	html.dark .blog-card-tag {
+		background: color-mix(in oklab, oklch(94% 0.006 270) 14%, transparent);
+		color: oklch(94% 0.006 270);
+	}
+
+	.blog-card.is-featured {
+		min-height: 22rem;
+		background: oklch(20% 0.012 270);
+		color: oklch(94% 0.006 270);
+		grid-column: 1 / -1;
+		padding: 2rem;
+	}
+
+	html.dark .blog-card.is-featured {
+		background: oklch(23% 0.014 270);
+		color: oklch(94% 0.006 270);
+	}
+
+	.blog-card.is-featured .blog-card-title {
+		color: oklch(94% 0.006 270);
+		max-width: 15ch;
+		font-size: clamp(2.35rem, 5.6vw, 5rem);
+		font-weight: 900;
+		line-height: 0.9;
+	}
+
+	.blog-card.is-featured:hover .blog-card-title {
+		color: oklch(94% 0.006 270);
+	}
+
+	.blog-card.is-featured .blog-card-date,
+	.blog-card.is-featured .blog-card-description,
+	.blog-card.is-featured .blog-card-read {
+		color: oklch(86% 0.006 270);
+	}
+
+	.blog-card.is-featured .blog-card-tag {
+		background: oklch(94% 0.006 270 / 0.14);
+		color: oklch(92% 0.006 270);
+	}
+
+	.blog-card.is-featured .blog-card-description {
+		margin-top: 1.5rem;
+		max-width: 52ch;
+	}
+
+	.blog-card.is-featured .blog-card-read {
+		display: block;
+	}
+</style>

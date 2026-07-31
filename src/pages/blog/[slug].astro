@@ -1,0 +1,150 @@
+---
+import { Image } from "astro:assets";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import ArticleMetadataItem from "@/components/ArticleMetadataItem.astro";
+import BlogTag from "@/components/BlogTag.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { localizedPath } from "@/i18n/paths";
+import { getLanguageFromLocale, languageLocale, useTranslations } from "@/i18n/ui";
+import Base from "@/layouts/Base.astro";
+
+type BlogEntry = CollectionEntry<"blog">;
+
+export async function getStaticPaths() {
+	const entries = await getCollection("blog");
+	const slugs = Array.from(new Set(entries.map((entry) => entry.id.split("/").at(-1)?.replace(/\.mdx?$/, "") ?? entry.id)));
+	return slugs.map((slug) => ({ params: { slug }, props: { entries } }));
+}
+
+function slugFromId(id: string) {
+	return id.split("/").at(-1)?.replace(/\.mdx?$/, "") ?? id;
+}
+
+const { entries } = Astro.props as { entries: BlogEntry[] };
+const language = getLanguageFromLocale(Astro.currentLocale);
+const translateKey = useTranslations(language);
+const slug = Astro.params.slug ?? "";
+const entry =
+	entries.find((item) => item.id.startsWith(`${language}/`) && slugFromId(item.id) === slug) ??
+	entries.find((item) => slugFromId(item.id) === slug);
+if (!entry) return Astro.redirect(localizedPath(language, "/blog/"));
+const blogBase = localizedPath(language, "/blog/");
+const canonicalPath = `${blogBase}${slugFromId(entry.id)}/`;
+const { Content, headings: renderedHeadings } = await render(entry);
+const date = new Intl.DateTimeFormat(languageLocale(language), { dateStyle: "long" }).format(entry.data.publicationDate);
+const minutes = Math.max(2, Math.round((entry.body ?? "").split(/\s+/).length / 220));
+const headings = renderedHeadings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const proseClass = [
+	"article-prose max-w-[80ch] font-sans text-[17px] leading-[1.76] text-foreground dark:text-surface",
+	"[&_h1]:hidden [&_h2]:mb-4 [&_h2]:mt-14 [&_h2]:font-display [&_h2]:text-[clamp(1.75rem,3vw,2.45rem)] [&_h2]:font-800 [&_h2]:leading-[1.06] [&_h2]:tracking-[-0.03em]",
+	"[&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:font-600 [&_h4]:mb-3 [&_h4]:mt-8 [&_h4]:font-600",
+	"[&_p]:mb-[22px] [&_p]:mt-0 [&_p]:text-foreground-muted dark:[&_p]:text-ink-muted",
+	"[&_a]:text-inherit [&_a]:underline [&_a]:decoration-brand-deep dark:[&_a]:decoration-brand-bright [&_a]:underline-offset-4",
+	// Lists
+	"[&_ul]:mb-[22px] [&_ul]:ml-6 [&_ul]:list-disc [&_ul]:text-foreground-muted dark:[&_ul]:text-ink-muted",
+	"[&_ol]:mb-[22px] [&_ol]:ml-6 [&_ol]:list-decimal [&_ol]:text-foreground-muted dark:[&_ol]:text-ink-muted",
+	"[&_li]:mb-1 [&_li]:leading-[1.65]",
+	"[&_ul_ul]:mt-2 [&_ol_ol]:mt-2",
+	// Blockquotes - clean border-left style per DA
+	"[&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-brand-deep [&_blockquote]:pl-4 [&_blockquote]:font-sans [&_blockquote]:text-[17px] [&_blockquote]:font-500 [&_blockquote]:leading-[1.65] [&_blockquote]:text-foreground-muted dark:[&_blockquote]:border-brand-bright dark:[&_blockquote]:text-ink-muted",
+	// Code blocks
+	"[&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:rounded-sm [&_pre]:bg-paper-raised [&_pre]:p-[18px] [&_pre]:text-[13px] dark:[&_pre]:bg-ink-raised",
+	"[&_code]:whitespace-pre-wrap [&_code]:break-words [&_code]:font-sans [&_code]:text-[0.9em] [&_code]:font-600 [&_pre_code]:whitespace-pre [&_pre_code]:break-normal",
+	// Tables
+	"[&_table]:mb-[22px] [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
+	"[&_th]:border [&_th]:border-border [&_th]:bg-paper-sunken [&_th]:px-4 [&_th]:py-2 [&_th]:font-600 [&_th]:text-left dark:[&_th]:bg-ink-sunken",
+	"[&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2",
+	"[&_tr]:even:bg-paper/50 dark:[&_tr]:even:bg-ink/50",
+	// Images
+	"[&_img]:max-w-full [&_img]:rounded-sm",
+].join(" ");
+---
+
+<Base language={language} title={`${entry.data.title} - GCC`} description={entry.data.description} canonicalPath={canonicalPath}>
+	<Header language={language} />
+	<main id="main" class="mx-auto w-full max-w-[96rem] flex-1 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+		<article>
+			<a href={blogBase} class="pressable inline-flex min-h-11 items-center gap-2 rounded-sm font-sans text-sm font-700 text-foreground-muted no-underline transition-colors duration-180 ease-out hover:text-brand-deep dark:text-ink-muted dark:hover:text-brand-bright">
+				<span aria-hidden="true">←</span>
+				{translateKey("blog.back")}
+			</a>
+
+			<header class="mt-8 pb-10 animate-in fade-in slide-in-from-bottom-2 animate-duration-500">
+				<div>
+					<div class="flex flex-wrap gap-2">
+						{entry.data.categories.map((category) => <BlogTag>{category}</BlogTag>)}
+					</div>
+					<h1 class="mt-8 max-w-[18ch] font-display text-[clamp(2.55rem,5.7vw,5.4rem)] font-900 leading-[0.92] tracking-[-0.04em] text-foreground dark:text-surface">
+						{entry.data.title}
+					</h1>
+					<p class="mt-7 max-w-[72ch] font-sans text-[clamp(1.02rem,1.45vw,1.18rem)] font-600 leading-[1.68] text-foreground-muted dark:text-ink-muted">
+						{entry.data.description}
+					</p>
+				</div>
+			</header>
+
+			<div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+				<div class="min-w-0">
+					{entry.data.cover && <Image src={entry.data.cover} alt={entry.data.coverAlt ?? ""} class="mb-10 max-h-[34rem] w-full rounded-sm object-cover" widths={[480, 768, 1024, 1440]} sizes="(min-width: 1024px) calc(100vw - 26rem), calc(100vw - 2rem)" loading="eager" decoding="async" />}
+					<div class={proseClass}>
+						<Content />
+					</div>
+				</div>
+				<aside class="order-first lg:sticky lg:top-28 lg:order-none">
+					<dl class="grid gap-3 font-sans text-xs font-700 tracking-[-0.01em] text-foreground-muted dark:text-ink-muted sm:grid-cols-3 lg:grid-cols-1">
+						<ArticleMetadataItem label={translateKey("blog.meta.date")} value={date} />
+						<ArticleMetadataItem label={translateKey("blog.meta.read")} value={`${minutes} min`} />
+						{entry.data.authors.length > 0 && <ArticleMetadataItem label={translateKey("blog.meta.author")} value={entry.data.authors.join(", ")} />}
+					</dl>
+					{headings.length > 0 && (
+						<nav class="mt-6 hidden font-sans lg:block" aria-label={translateKey("blog.meta.sections")}>
+							<p class="mb-3 text-xs font-800 tracking-[-0.01em] text-foreground-subtle dark:text-ink-subtle">{translateKey("blog.meta.sections")}</p>
+							<ol class="grid gap-2 text-sm font-600 leading-[1.35] text-foreground-muted dark:text-ink-muted max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
+								{headings.map((heading) => (
+									<li class:list={[heading.depth === 3 && "pl-3"]}>
+									<a class="no-underline transition-colors duration-180 hover:text-brand-deep dark:hover:text-brand-bright" href={`#${heading.slug}`}>{heading.text}</a>
+									</li>
+								))}
+							</ol>
+						</nav>
+					)}
+				</aside>
+			</div>
+		</article>
+	</main>
+	<Footer language={language} />
+</Base>
+
+<style is:global>
+	.article-prose a {
+		overflow-wrap: anywhere;
+	}
+	
+	/* Custom scrollbar for marginalia */
+	nav ol::-webkit-scrollbar {
+		width: 6px;
+	}
+	nav ol::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	nav ol::-webkit-scrollbar-thumb {
+		background: oklch(55% 0.012 270 / 0.45);
+		border-radius: 3px;
+	}
+	nav ol::-webkit-scrollbar-thumb:hover {
+		background: oklch(48% 0.012 270);
+	}
+	html.dark nav ol::-webkit-scrollbar-thumb {
+		background: oklch(71% 0.012 270 / 0.45);
+	}
+	html.dark nav ol::-webkit-scrollbar-thumb:hover {
+		background: oklch(78% 0.012 270);
+	}
+</style>
+
+<style is:global>
+	.article-prose a {
+		overflow-wrap: anywhere;
+	}
+</style>

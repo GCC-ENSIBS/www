@@ -1,0 +1,13 @@
+---
+const { href, label, icon, externalLabel } = Astro.props as {
+	href: string;
+	label: string;
+	icon: string;
+	externalLabel: string;
+};
+---
+
+<a class="group flex min-h-16 items-center justify-between rounded-sm bg-paper-raised p-4 font-sans text-base font-800 text-foreground no-underline transition-colors duration-180 ease-out hover:text-brand-deep dark:bg-ink-raised dark:text-surface dark:hover:text-brand-bright" href={href} target="_blank" rel="noopener me">
+	<span class="flex items-center gap-2"><span class={`${icon} size-4 text-foreground-subtle transition-colors group-hover:text-brand-deep dark:text-ink-subtle dark:group-hover:text-brand-bright`} aria-hidden="true"></span>{label}<span class="sr-only"> ({externalLabel})</span></span>
+	<span class="i-lucide-arrow-up-right size-4 opacity-60" aria-hidden="true"></span>
+</a>

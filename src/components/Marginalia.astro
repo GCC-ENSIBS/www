@@ -1,0 +1,79 @@
+---
+import type { Language } from "@/i18n/ui";
+import { useTranslations } from "@/i18n/ui";
+
+const { language } = Astro.props as { language: Language };
+const translateKey = useTranslations(language);
+
+const sections = [
+	{ id: "hero", key: "marginalia.hero" as const },
+	{ id: "capabilities", key: "marginalia.capabilities" as const },
+	{ id: "join", key: "marginalia.join" as const },
+];
+---
+
+<aside
+	class="pointer-events-none fixed right-8 top-1/2 z-30 hidden -translate-y-1/2 opacity-0 transition-opacity duration-[400ms] xl:block"
+	aria-label={translateKey("marginalia.navigation")}
+	data-marginalia
+>
+	<nav aria-label={translateKey("marginalia.navigation")}>
+		<ul class="flex flex-col items-end gap-5">
+			{
+				sections.map((section) => (
+					<li>
+						<a
+							href={`#${section.id}`}
+						class="marginalia-mark block font-sans text-base font-500 tracking-[0.01em] text-foreground-subtle transition-colors duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-brand-deep data-[active=true]:font-600 data-[active=true]:text-brand-deep dark:text-ink-subtle dark:hover:text-brand-bright dark:data-[active=true]:text-brand-bright"
+							data-target={section.id}
+						>
+							{translateKey(section.key)}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</aside>
+
+<script>
+	const hero = document.getElementById("hero");
+	const aside = document.querySelector<HTMLElement>("[data-marginalia]");
+	if (hero && aside) {
+		const updateAside = () => {
+			const visible = hero.getBoundingClientRect().bottom < window.innerHeight * 0.5;
+			aside.style.opacity = visible ? "1" : "0";
+			aside.classList.toggle("pointer-events-none", !visible);
+			aside.classList.toggle("pointer-events-auto", visible);
+		};
+
+		updateAside();
+		window.addEventListener("scroll", updateAside, { passive: true });
+		window.addEventListener("resize", updateAside);
+	}
+
+	const marks = document.querySelectorAll<HTMLAnchorElement>(".marginalia-mark");
+	if (marks.length > 0) {
+		const targets = Array.from(marks).map((mark) => {
+			const targetId = mark.dataset.target;
+			return { mark, section: targetId ? document.getElementById(targetId) : null };
+		});
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+
+					for (const target of targets) {
+						target.mark.dataset.active = String(target.section === entry.target);
+					}
+				}
+			},
+			{ rootMargin: "-40% 0px -55% 0px" },
+		);
+
+		for (const target of targets) {
+			if (target.section) observer.observe(target.section);
+		}
+	}
+</script>

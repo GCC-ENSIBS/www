@@ -1,0 +1,37 @@
+---
+type Variant = "primary" | "secondary";
+
+const {
+	href,
+	variant = "secondary",
+	external = false,
+	externalLabel,
+	class: className = "",
+	style,
+} = Astro.props as {
+	href: string;
+	variant?: Variant;
+	external?: boolean;
+	externalLabel?: string;
+	class?: string;
+	style?: string;
+};
+
+const variants = {
+	primary:
+		"bg-foreground text-paper hover:text-paper dark:bg-ink-card dark:text-surface dark:hover:text-surface",
+	secondary:
+		"bg-paper-raised text-foreground hover:text-brand-deep dark:bg-ink-raised dark:text-surface dark:hover:text-brand-bright",
+};
+---
+
+<a
+	href={href}
+	class={`inline-flex min-h-12 items-center rounded-sm px-5 font-sans text-sm font-800 no-underline transition-colors duration-180 ease-out ${variants[variant]} ${className}`}
+	target={external ? "_blank" : undefined}
+	rel={external ? "noopener" : undefined}
+	style={style}
+>
+	<slot />
+	{external && externalLabel && <span class="sr-only"> ({externalLabel})</span>}
+</a>
