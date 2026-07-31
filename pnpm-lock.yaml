@@ -64,8 +64,8 @@ importers:
         specifier: 66.7.4
         version: 66.7.4
       '@unocss/preset-typography':
-        specifier: 66.7.4
-        version: 66.7.4
+        specifier: 66.7.5
+        version: 66.7.5
       '@unocss/preset-web-fonts':
         specifier: 66.7.4
         version: 66.7.4
@@ -1157,6 +1157,9 @@ packages:
   '@unocss/core@66.7.4':
     resolution: {integrity: sha512-OGXh+RRsAgOrecTKRjUd4SepHR7W4v6zIf6pGtKyIIAIMnzcW/tU+afR1cDbhtb4efZMQhzaoAh3ncvkL8eEYA==}
 
+  '@unocss/core@66.7.5':
+    resolution: {integrity: sha512-UdJb8MiMywcau8QrWEVgUAz0kvoFHyR+sACwYCgmBh/BpKJGyR/zw/Ys3wvysbm0f+i/20VGBex/QQxYVlzdyQ==}
+
   '@unocss/extractor-arbitrary-variants@66.7.4':
     resolution: {integrity: sha512-0yawiWzVDDBRow8kuMeNFhzYJUwYrsKc1xclzNurkisal7tTG24haDmpqneol8j3TT2blrQOIuSQPrEgv6y4oQ==}
 
@@ -1178,6 +1181,9 @@ packages:
   '@unocss/preset-typography@66.7.4':
     resolution: {integrity: sha512-FNlkAdlfUqsiHrkeKt5gr8rbTH5K6qNBv44n5fK6wWWbrl/6mB+oazvC9yFp+winJWr+M7TBrnrhC7wAeTdpAA==}
 
+  '@unocss/preset-typography@66.7.5':
+    resolution: {integrity: sha512-2dxC8LT9KYa29UZT4muDFl7DbIXvKktTfeSMbUGMdZKbHcuMtKSP2U52wti1PL5I9duqp4v+8G33EeVutGTUaQ==}
+
   '@unocss/preset-uno@66.7.4':
     resolution: {integrity: sha512-ov0sGR2mQ3x4OtdFHdpndy3VuK5UkXuhEAb6LwxSzUIKOqWcxSi24nugBchfInS930pI3Ka9Eje7kAsU+QAPEg==}
 
@@ -1198,6 +1204,9 @@ packages:
 
   '@unocss/rule-utils@66.7.4':
     resolution: {integrity: sha512-S+q2gqsWpZfW+MJV6LGH42eyKDK8xGdUPse72T8euNDagl5/OZFGSJ3TlIrlNilscbUiWM8nIu0cWeRaAmEMlA==}
+
+  '@unocss/rule-utils@66.7.5':
+    resolution: {integrity: sha512-/AKHBRF6ZOexE3EDDv8ZEYh40P5e2Eha41IYUbE1wjigW7++ssmvimSTdufJzZvU5DGP++E3B3WEsFPprZMjAg==}
 
   '@unocss/transformer-attributify-jsx@66.7.4':
     resolution: {integrity: sha512-HvSmnxEaMdvEOBAe4JeGfQHYoemY7eyEkM9tK60KBvuvLS/tpkTu9sQy8Y2PaSVdtdl8wNJYAjBq14mBTJhJQQ==}
@@ -3767,6 +3776,8 @@ snapshots:
 
   '@unocss/core@66.7.4': {}
 
+  '@unocss/core@66.7.5': {}
+
   '@unocss/extractor-arbitrary-variants@66.7.4':
     dependencies:
       '@unocss/core': 66.7.4
@@ -3804,6 +3815,11 @@ snapshots:
       '@unocss/core': 66.7.4
       '@unocss/rule-utils': 66.7.4
 
+  '@unocss/preset-typography@66.7.5':
+    dependencies:
+      '@unocss/core': 66.7.5
+      '@unocss/rule-utils': 66.7.5
+
   '@unocss/preset-uno@66.7.4':
     dependencies:
       '@unocss/core': 66.7.4
@@ -3836,6 +3852,11 @@ snapshots:
   '@unocss/rule-utils@66.7.4':
     dependencies:
       '@unocss/core': 66.7.4
+      magic-string: 0.30.21
+
+  '@unocss/rule-utils@66.7.5':
+    dependencies:
+      '@unocss/core': 66.7.5
       magic-string: 0.30.21
 
   '@unocss/transformer-attributify-jsx@66.7.4':
