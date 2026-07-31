@@ -8,7 +8,8 @@ import robotsTxt from "astro-robots-txt";
 import UnoCSS from "unocss/astro";
 
 export default defineConfig({
-	site: "https://gcc-ensibs.fr",
+	site: "https://gcc-ensibs.github.io", // https://gcc-ensibs.github.io
+	base: "/www",
 	scopedStyleStrategy: "where",
 	prefetch: {
 		defaultStrategy: "hover",
