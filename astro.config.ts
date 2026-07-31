@@ -16,8 +16,8 @@ export default defineConfig({
 	markdown: {
 		shikiConfig: {
 			themes: {
-				light: "github-light",
-				dark: "github-dark",
+				light: "min-light",
+				dark: "dracula",
 			},
 			defaultColor: false,
 			wrap: true,
@@ -36,7 +36,22 @@ export default defineConfig({
 	},
 	integrations: [
 		UnoCSS(),
-		expressiveCode(),
+		expressiveCode({
+			themes: {
+				light: 'min-light',
+				dark: 'dracula',
+			},
+			styleOverrides: {
+				borderRadius: '4px',
+				codeFontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+				codeFontSize: '13px',
+				codeLineHeight: '1.6',
+				codePaddingInline: '1rem',
+				codePaddingBlock: '0.75rem',
+				borderWidth: '0px',
+				backgroundColor: 'transparent',
+			},
+		}),
 		mdx(),
 		sitemap(),
 		pagefind(),
