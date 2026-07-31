@@ -1,0 +1,59 @@
+name: Check formatting of the project
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  yamlfix:
+    name: Check formatting with yamlfix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - name: Check YAML formatting
+        run: uvx yamlfix -v --check .
+  mdformat:
+    name: Check formatting with mdformat
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - name: Check Markdown formatting
+        run: uvx mdformat --check .
+  svgo:
+    name: Check formatting with svgo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '11'
+          standalone: true
+      - name: Check SVG formatting
+        run: git ls-files -z -- '*.svg' | xargs -0 -r pnpx svgo --pretty && git diff --exit-code
+  biome:
+    name: Check formatting with Biome
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '11'
+          standalone: true
+      - name: Install dependencies
+        run: pnpm install
+      - name: Check code formatting
+        run: pnpm format

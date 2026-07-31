@@ -1,0 +1,64 @@
+name: Lint the project
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  yamllint:
+    name: Lint with yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - name: Lint YAML code
+        run: uvx yamllint -s .
+  reuse:
+    name: Lint with REUSE
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Lint licenses
+        uses: fsfe/reuse-action@v6
+  markdownlint-cli2:
+    name: Lint with markdownlint-cli2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Lint Markdown code
+        uses: DavidAnson/markdownlint-cli2-action@v24
+  svglint:
+    name: Lint with svglint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '11'
+          standalone: true
+      - name: Lint SVG code
+        run: git ls-files -z -- '*.svg' | xargs -0 pnpx svglint --ci
+  biome:
+    name: Lint with Biome
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '11'
+          standalone: true
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint code
+        run: pnpm lint
+      - name: Check assist
+        run: pnpm assist

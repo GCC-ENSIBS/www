@@ -1,0 +1,20 @@
+name: Audit the project
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  npm-audit:
+    name: Audit with npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '11'
+          standalone: true
+      - name: Install dependencies
+        run: pnpm install
+      - name: Audit dependencies
+        run: pnpm audit
