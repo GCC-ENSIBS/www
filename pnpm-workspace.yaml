@@ -1,6 +1,8 @@
 allowBuilds:
   esbuild: true
   sharp: true
+  # Its install script downloads a private JRE; the checks use the system one.
+  vnu-jar: false
 minimumReleaseAgeExclude:
   - '@iconify-json/simple-icons@1.2.88'
   - '@unocss/astro@66.7.4'
