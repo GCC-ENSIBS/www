@@ -1,11 +1,11 @@
 ---
 authors:
   - Migatte No Chauvui
-title: "CSAWCTF2024-Qualifiers-Writeups OSINT"
-description: "My writeups for all of the OSINT challenges of the 2024 CSAWCTF Qualifiers"
+title: "CSAWCTF 2024 Qualifiers - OSINT Writeups"
+description: "A full pass through the CSAWCTF 2024 OSINT challenges: open-source searches, diplomatic plates, aircraft tracking, invisible characters and music clues."
 publicationDate: 2024-09-11 00:00:00+0000
-cover: ../../assets/blog/csaw2024-qualifiers-osint/csaw.png
-coverAlt: "CSAWCTF2024-Qualifiers-Writeups OSINT"
+cover: ../../../assets/blog/csaw2024-qualifiers-osint/csaw.png
+coverAlt: "CSAWCTF 2024 Qualifiers OSINT Writeups"
 categories:
   - OSINT
 tags:
@@ -15,156 +15,163 @@ tags:
   - WriteUp
 ---
 
-# Authentic Chinese Food
+## Authentic Chinese Food
 
-![image](assets/pandachalldesc.png)
+![Authentic Chinese Food challenge prompt](../../../assets/blog/csaw2024-qualifiers-osint/panda-challenge-description.png)
 
-On the top right corner of the picture we can see a phone number, after a quick google search we realise the number is from NewYork.
+In the top-right corner of the picture, there is a phone number. After a quick Google search, we realize the number is from New York.
 
-We can then search on google maps "Panda Express New York" and we will find the one corresponding to the picture above.
+We can then search "Panda Express New York" on Google Maps and find the location that matches the picture above.
 
-![image](assets/pandapicture.png)
+![Panda Express storefront at 423 Fulton Street](../../../assets/blog/csaw2024-qualifiers-osint/panda-express-storefront.png)
 
-It's address is : 423 Fulton St, Brooklyn, NY 11201
+Its address is: 423 Fulton St, Brooklyn, NY 11201
 
 ### Healthgrade
 
-On this website if we type the address of the restaurant we can find out its grade says pending, it turns out this was the first part of the flag:
+On this website, if we enter the restaurant address, its grade is listed as pending. It turns out this was the first part of the flag:
 
 https://a816-health.nyc.gov/ABCEatsRestaurants/#!/Search/50055636
 
 ### Year Built
 
-On some websites it says the building was built in 1920 but if we look at this article about this particular building it says it was built in 1931:
+Some websites say the building was built in 1920, but this article about the specific building says it was built in 1931:
 https://www.brownstoner.com/architecture/building-of-the-day-423-fulton-street/
 
 ### LLC Name
 
-On many different housing websites if we type this address we can see it's owned by BNN FULTON FLUSHING OWNER LCC
-https://www.compass.com/building/423-fulton-st-brooklyn-ny-11201/293532309167074133/
+On several real estate websites, if we enter this address, we find that it is owned by BNN FULTON FLUSHING OWNER LCC.
+https://a836-pts-access.nyc.gov/care/datalets/datalet.aspx?mode=asmt_tent_2027&UseSearch=no&pin=3001500011&taxyr=2027&LMparent=20
 
-### FLAG: 
+### Flag
+
 ```
 csawctf{Pending_1931_Bnn_Fulton_Flushing_Owner}
 ```
 
 
-# Rickshaw
+## Rickshaw
 
-![image](assets/rickshaw.png)
+![Pink rickshaw with an Indian diplomatic plate](../../../assets/blog/csaw2024-qualifiers-osint/rickshaw.png)
 
-For this challenge we need to find the phone number of the owner of this vehicule.
-After looking on google for the first 4 characters of this pressure plate we realise this rickshaw is owned by the US ambassy in India
+For this challenge, we need to find the phone number of the owner of this vehicle.
+After searching Google for the first four characters of this license plate, we realize that this rickshaw is owned by the US embassy in India.
 
 https://www.licenseplatemania.com/landenpaginas/indie.htm
 
-We can then type on google "pink rickshaw US ambassy India" and we find in the first results this facebook post of the US Indian ambassy:
+We can then search Google for "pink rickshaw US embassy India" and find, among the first results, this Facebook post from the US embassy in India:
 https://www.facebook.com/India.usembassy/videos/the-auto-gang-of-the-us-embassy/839571310398639/
 
-We then go on the facebook profile of the ambassy and we can find their phone number.
+We then go to the embassy's Facebook profile and find their phone number.
 
-### Flag:
+### Flag
+
 ```
 csawctf{+91-11-2419-8000}  
 ```
 
 
-# Plane spotting
+## Plane spotting
 
-![image](assets/planespot.png)
+![Plane Spotting challenge prompt](../../../assets/blog/csaw2024-qualifiers-osint/planespot.png)
 
-A google search about this incident brings us to this article:
-https://meidasnews.com/news/trump-plane-seen-parked-next-to-russian-government-plane-for-two-days
+A Google search about this incident brings us to this article:
+https://www.donaldlovesvladimir.com/post/trump-plane-parked-next-to-russian-government-jet-at-dulles
 
 ### Registration number US
-We get the information that the former president is Donald Trump and his airplane is the 'Trump force one', a google search gives us the registration number which is: N757AF and we can also easily find out that the model of the russian plane is IL-96-300.
 
-### Airportcode
+We learn that the former president is Donald Trump and that his plane is "Trump Force One". A Google search gives us its registration number, N757AF, and we can also easily find that the Russian plane model is IL-96-300.
 
-In the articles above we also find out that the airport where Trump's airplane was parked next to the russian airplane was the Washington-Dulles airport and its code is: IAD
+### Airport code
+
+In the articles above, we also find that the airport where Trump's plane was parked next to the Russian plane was Washington Dulles, whose code is IAD.
 
 ### Registration number RUS
-After searching a bit more we find this article talking about the Russian airplane with a tweet which shows the registration number:
-https://dailywrap.uk/russian-planes-unexpected-visit-to-the-us-raises-questions,7043084396886145a
 
-![image](assets/ruplane.jpg)
+After searching a bit more, we cross-check the Russian plane and its registration number:
+https://zenn.dev/tkaliiho/articles/3018ddaddfa946
 
-The registration number is RA-96018
+![Russian aircraft with registration RA-96018](../../../assets/blog/csaw2024-qualifiers-osint/ruplane.jpg)
+
+The registration number is RA-96018.
 
 ### US city name
 
-The challenge then talks about another russian airplane flew to the US.
+The challenge then talks about another Russian plane that flew to the US.
 
-After searching a bit more online I found this tweet which talked about another russian airplane which was in the US at the time as the incident:
+After searching a bit more online, I found this tweet about another Russian plane that was in the US at the same time as the incident:
 
 https://x.com/MenchOsint/status/1806742133069738360?lang=sr
 
-It's reg number is RA-96019, just one digit above the previous one.
-I decide to look at it's flight history:
+Its registration number is RA-96019, just one digit above the previous one.
+I decide to look at its flight history:
 
 https://fr.flightaware.com/live/flight/RA96019/history
-![image](assets/historyflight.png)
+![Flight history for aircraft RA-96019](../../../assets/blog/csaw2024-qualifiers-osint/historyflight.png)
 
-This plane was flying in the US at 21:07 so it it looks like I'm on right track, let's have a closer look at this.
-![image](assets/planecitynear.png)
+This plane was flying in the US at 21:07, so it looks like I am on the right track. Let's have a closer look.
+![Aircraft position near Trenton on the map](../../../assets/blog/csaw2024-qualifiers-osint/planecitynear.png)
 
-After looking at the plane's position on google maps we see that the nearest city is Trenton.
+After looking at the plane's position on Google Maps, we see that the nearest city is Trenton.
 
-We combine all of these informations and we get the flag!
+We combine all of this information and get the flag!
 
-### Flag:
+### Flag
+
 ```
 csawctf{RA96018_IAD_N757AF_Trenton}
 ```
 
 
-# Literally 1984
+## Literally 1984
 
-This was probably the most controversial OSINT chall of this ctf, personally I liked it a lot and I found it pretty original.
+This was probably the most controversial OSINT challenge of this CTF. Personally, I liked it a lot and found it pretty original.
 
-![image](assets/1984challdesc.png)
+![Literally 1984 challenge prompt](../../../assets/blog/csaw2024-qualifiers-osint/1984-challenge-description.png)
 
-We don't have many informations with this description but if we look at the html code of the website we see something interesting:
+The description does not give much information, but if we look at the website's HTML code, we see something interesting:
 
-![image](assets/secret.png)
+![HTML code showing a zero-width non-joiner character](../../../assets/blog/csaw2024-qualifiers-osint/secret.png)
 
-"&zwnj" is what we see between "name of" and "made a cover" in html.
+`&zwnj` is what we see between "name of" and "made a cover" in the HTML.
 
-If we search online this sequence of characters it brings us to this wiki page:
+If we search this sequence of characters online, it brings us to this wiki page:
 https://en.wikipedia.org/wiki/Zero-width_non-joiner
 
-I then decided to search on youtube for singing related content using this sequence:
-![image](assets/songsearch.png)
+I then decided to search YouTube for singing-related content using this sequence:
+![YouTube search results for the zero-width non-joiner character](../../../assets/blog/csaw2024-qualifiers-osint/songsearch.png)
  
- In the first results we find a japanese singing channel which looks like it has no name and goes by the nickname x0o0x_:
- ![image](assets/nonamechannel.png)
+In the first results, we find a Japanese singing channel that looks like it has no name and goes by the nickname x0o0x_:
+![Japanese YouTube singing channel with no visible name](../../../assets/blog/csaw2024-qualifiers-osint/nonamechannel.png)
 
-On the popular videos of this channel we see a song called big brother, all of a sudden the name of the challenge makes much more sense.
+In the popular videos of this channel, we see a song called Big Brother. Suddenly, the challenge name makes much more sense.
 https://www.youtube.com/watch?v=5lrseDtxX_E
 
-We then look at the composer's name in the description of the video and we translate it in english which gives us our flag:
+We then look at the composer's name in the video description and translate it into English, which gives us our flag:
 
-### Flag:
+### Flag
+
 ```
 csawctf{Susumu_Hirasawa}
 ```
 
 
-# Mystery
+## Mystery
 
-![image](assets/mysterychalldesc.png)
+![Mystery challenge prompt](../../../assets/blog/csaw2024-qualifiers-osint/mystery-challenge-description.png)
 
-First we need to look at the band in which the producer was of in 1992, after looking at his wikipedia page we see that the band is called P-model.
+First, we need to look at the band the producer was part of in 1992. After checking his Wikipedia page, we see that the band is called P-Model.
 
 https://en.wikipedia.org/wiki/Susumu_Hirasawa
 
-After some more searching we see that the band only released one album in 1992 so what I did is searched every single song of this album on youtube followed by the previous chall's artist name which is x0o0x_
+After some more searching, we see that the band only released one album in 1992. I searched every song from this album on YouTube, followed by the previous challenge's artist name, x0o0x_.
 
-We then quickly find this song covered by x0o0x_ and another artist called Chogakusei.
+We quickly find this song covered by x0o0x_ and another artist called Chogakusei.
 
 https://www.youtube.com/watch?v=mI8KKipWEp4
 
-### Flag:
+### Flag
+
 ```
 csawctf{Chogakusei}
 ```
