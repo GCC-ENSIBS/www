@@ -15,6 +15,11 @@ runs:
         node-version: 22
         cache: pnpm
 
+    # pnpm-lock.yaml is git ignored, so the committed copy cannot follow
+    # package.json and the tree is resolved at install time. Only the exact
+    # versions pinned in package.json are guaranteed here; transitive ones are
+    # whatever resolves on the day. Dropping the lockfile from .gitignore is
+    # what would make this reproducible again.
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --no-frozen-lockfile
       shell: bash
