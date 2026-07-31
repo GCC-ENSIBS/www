@@ -21,6 +21,9 @@
 		"format:fix": "biome format --write .",
 		"assist": "biome check --linter-enabled=false --formatter-enabled=false .",
 		"assist:fix": "biome check --linter-enabled=false --formatter-enabled=false --write .",
+		"check:images": "node scripts/check-local-images.mjs",
+		"check:articles": "node scripts/check-articles.mjs",
+		"check:html": "node scripts/check-html.mjs",
 		"clean": "rm -rf dist .astro node_modules"
 	},
 	"dependencies": {
@@ -50,6 +53,7 @@
 		"@unocss/transformer-variant-group": "66.7.4",
 		"typescript": "6.0.3",
 		"unocss": "66.7.4",
-		"unocss-preset-animations": "1.3.0"
+		"unocss-preset-animations": "1.3.0",
+		"vnu-jar": "26.7.25"
 	}
 }

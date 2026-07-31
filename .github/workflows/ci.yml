@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+# A new push supersedes the checks still running for the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # Covers linting, formatting and import order in one pass, and reports
+      # every finding inline on the pull request diff.
+      - name: Lint, format and import order
+        run: pnpm exec biome ci --reporter=github .
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # Type checks the TypeScript and the Astro templates, and validates the
+      # frontmatter of every article against the content collection schema.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+  content:
+    name: Content
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Images are local and resolvable
+        run: pnpm check:images
+
+      - name: Articles follow the house format
+        run: pnpm check:articles
+
+  html:
+    name: W3C
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # The Nu Html Checker runs on the JVM.
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Rebuilt here rather than carried over from the build job: the build
+      # takes seconds, an artifact round trip does not.
+      - name: Build
+        run: pnpm build
+
+      - name: Validate the built pages
+        run: pnpm check:html

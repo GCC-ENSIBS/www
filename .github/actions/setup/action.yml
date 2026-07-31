@@ -1,0 +1,20 @@
+name: Setup
+description: Installs pnpm, Node and the locked dependencies.
+
+runs:
+  using: composite
+  steps:
+    # Reads the pnpm version from the packageManager field of package.json.
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    # Kept in step with the engines field of package.json.
+    - name: Install Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
