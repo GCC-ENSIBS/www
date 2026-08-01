@@ -13,7 +13,6 @@ const pathWithBase = Astro.url.pathname;
 const pathWithoutBase = base !== "/" && pathWithBase.startsWith(base) ? pathWithBase.slice(base.length) || "/" : pathWithBase;
 const currentPath = pathWithoutBase === "/en" ? "/en/" : pathWithoutBase;
 const pathWithoutLanguage = currentPath.startsWith("/en/") ? currentPath.slice(3) || "/" : currentPath;
-const englishPath = pathWithoutLanguage === "/" ? "/en/" : `/en${pathWithoutLanguage}`;
 const isNotFoundPage = pathWithoutLanguage === "/404" || pathWithoutLanguage === "/404/";
 
 const navigationLinks = [
@@ -22,8 +21,8 @@ const navigationLinks = [
 ];
 
 const languageLinks = [
-	{ href: isNotFoundPage ? localizedPath("fr", "/") : localizedPath("fr", pathWithoutLanguage), label: "FR", active: language === "fr" },
-	{ href: isNotFoundPage ? localizedPath("en", "/") : localizedPath("en", pathWithoutLanguage), label: "EN", active: language === "en" },
+	{ href: isNotFoundPage ? localizedPath("fr", "/") : localizedPath("fr", pathWithoutLanguage as `/${string}`), label: "FR", active: language === "fr" },
+	{ href: isNotFoundPage ? localizedPath("en", "/") : localizedPath("en", pathWithoutLanguage as `/${string}`), label: "EN", active: language === "en" },
 ];
 ---
 
@@ -35,7 +34,7 @@ const languageLinks = [
 		class="group flex min-h-11 items-center gap-4 text-foreground no-underline transition-opacity duration-200 hover:opacity-90 dark:text-surface"
 		aria-label="GCC"
 	>
-		<Logo width="40" height="40" loading="eager" fetchpriority="high" class="block h-10 w-10" alt="" />
+		<Logo width="40" height="40" class="block h-10 w-10" aria-hidden="true" />
 		<span>
 			<span class="block font-display text-[18px] font-800 leading-none tracking-[-0.025em] text-foreground dark:text-surface">GCC</span>
 			<span class="mt-1 hidden font-sans text-[11px] font-600 leading-none text-foreground-muted dark:text-ink-muted sm:block">{translateKey("navigation.brandSubtitle")}</span>

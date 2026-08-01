@@ -93,7 +93,17 @@ function formatMonth(date: Date) {
 	const activeClasses = ["is-active"];
 	let activeCategory = "all";
 	let pagefindResults: string[] = [];
-	let pagefindModule: unknown = null;
+	let pagefindModule: PagefindModule | undefined;
+
+	interface PagefindResult {
+		url: string;
+	}
+
+	interface PagefindModule {
+		init: () => Promise<void>;
+		debouncedSearch: (query: string) => Promise<{ results: Array<{ data: () => Promise<PagefindResult> }> }>;
+		preload?: (query: string) => Promise<void>;
+	}
 
 	const setFeaturedRow = () => {
 		const firstVisible = rows.find((row) => !row.hidden);
@@ -106,7 +116,7 @@ function formatMonth(date: Date) {
 		if (pagefindModule) return pagefindModule;
 		
 		const pf = await import(/* @vite-ignore */ `${import.meta.env.BASE_URL}pagefind/pagefind.js`);
-		pagefindModule = pf;
+		pagefindModule = pf as PagefindModule;
 		await pf.init();
 		return pf;
 	};
@@ -115,7 +125,7 @@ function formatMonth(date: Date) {
 		const pf = await loadPagefind();
 		const searchResult = await pf.debouncedSearch(query);
 		if (!searchResult?.results) return [];
-		const results = await Promise.all(searchResult.results.map((r) => r.data()));
+		const results = await Promise.all(searchResult.results.map((r: { data: () => Promise<PagefindResult> }) => r.data()));
 		return results.map((r) => {
 			const url = r.url;
 			const base = url.replace(/^\/en/, "").replace(/\/$/, "");
@@ -172,7 +182,7 @@ function formatMonth(date: Date) {
 	setFeaturedRow();
 	
 	search?.addEventListener("focus", async () => {
-		if (pagefindModule && search?.value.trim()) {
+		if (pagefindModule?.preload && search?.value.trim()) {
 			await pagefindModule.preload(search.value.trim());
 		}
 	});

@@ -38,10 +38,7 @@ export default defineConfig({
 	integrations: [
 		UnoCSS(),
 		expressiveCode({
-			themes: {
-				light: "min-light",
-				dark: "dracula",
-			},
+			themes: ["min-light", "dracula"],
 			styleOverrides: {
 				borderRadius: "4px",
 				codeFontFamily:
@@ -51,7 +48,6 @@ export default defineConfig({
 				codePaddingInline: "1rem",
 				codePaddingBlock: "0.75rem",
 				borderWidth: "0px",
-				backgroundColor: "transparent",
 			},
 		}),
 		mdx(),
