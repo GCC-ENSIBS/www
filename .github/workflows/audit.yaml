@@ -3,6 +3,11 @@ name: Audit the project
 on: [push, pull_request]
 permissions:
   contents: read
+# push and pull_request both fire on a pull request branch. Without this, two
+# runs race to build the same database and neither benefits from the other.
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   npm-audit:
     name: Audit with npm audit
@@ -25,7 +30,9 @@ jobs:
   dependency-check:
     name: Audit with dependency-check
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Generous enough for the cold run that builds the database from scratch,
+    # tight enough that a stalled NVD call does not idle for hours.
+    timeout-minutes: 45
     env:
       # The matching archive is committed at the root of the repository, so
       # bumping this means committing the new release zip and deleting the old.
@@ -51,14 +58,19 @@ jobs:
       # the handful of direct dependencies declared in package.json.
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      # The database is a few hundred megabytes and takes far longer to
-      # download than the scan itself. The run id makes every run save a fresh
-      # entry, while restore-keys picks up the most recent one.
+      - name: Stamp the day
+        id: day
+        run: echo "stamp=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      # Keyed by the day, not by the run: the database weighs more than a
+      # gigabyte, and a fresh entry per run would burn through the 10 GB a
+      # repository gets for caches, evicting the other workflows' entries with
+      # it. One entry a day pairs with the 24 hour freshness window below, so
+      # only the first run of the day talks to the NVD at all.
       - name: Restore the vulnerability database
         uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/dependency-check-data
-          key: dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-${{ github.run_id }}
+          key: dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-${{ steps.day.outputs.stamp }}
           restore-keys: |
             dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-
       # Unpacked from the archive committed at the root of the repository, and
@@ -74,23 +86,17 @@ jobs:
           fi
 
           unzip -q "$archive" -d "$RUNNER_TEMP"
-      # Kept separate from the scan, and non fatal: when the NVD is throttling
-      # or down, the cached database still gives a usable audit.
-      - name: Update the vulnerability database
-        continue-on-error: true
+      - name: Scan the project
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          # The default heap is a quarter of the runner's memory, which the H2
+          # database and a few thousand node_modules files can outgrow.
+          JAVA_OPTS: -Xmx4g
         run: |
           if [ -z "$NVD_API_KEY" ]; then
-            echo "::warning::NVD_API_KEY is not set, and the NVD throttles anonymous updates heavily. Request a key at https://nvd.nist.gov/developers/request-an-api-key and add it to the repository secrets."
+            echo "::warning::NVD_API_KEY is not set, and the NVD throttles anonymous access heavily. Request a key at https://nvd.nist.gov/developers/request-an-api-key and add it to the repository secrets."
           fi
 
-          "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" \
-            --updateonly \
-            --data "$RUNNER_TEMP/dependency-check-data" \
-            ${NVD_API_KEY:+--nvdApiKey "$NVD_API_KEY"}
-      - name: Scan the project
-        run: |
           # Analysers for ecosystems this project does not use. Disabling them
           # keeps the scan quick and stops analysers from failing over tools
           # that are simply not installed on the runner.
@@ -108,6 +114,9 @@ jobs:
             # Belt and braces with the exclude below: the scanner archive now
             # sits in the workspace, and nothing here ships inside an archive.
             --disableArchive
+            # One remote call per package against a rate limited anonymous
+            # endpoint, for npm advisories the pnpm analyser already reports.
+            --disableOssIndex --disableOssIndexCache
           )
 
           # The pnpm analyser reads pnpm-lock.yaml natively, so no npm lockfile
@@ -123,7 +132,8 @@ jobs:
             --format HTML \
             --format JSON \
             --data "$RUNNER_TEMP/dependency-check-data" \
-            --noupdate \
+            --nvdValidForHours 24 \
+            ${NVD_API_KEY:+--nvdApiKey "$NVD_API_KEY"} \
             "${unused[@]}"
       # Puts the headline numbers on the run page, so the artifact only has to
       # be opened when there is something to look at.
