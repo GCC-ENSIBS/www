@@ -27,9 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Bump the two together: the checksum pins the exact published archive.
+      # The matching archive is committed at the root of the repository, so
+      # bumping this means committing the new release zip and deleting the old.
       DEPENDENCY_CHECK_VERSION: 12.1.0
-      DEPENDENCY_CHECK_SHA256: 0e5ba6ae58e753d5841048c6c8e495dbc4c7a4ea921a2b14daeac65195700532
       REPORT_DIR: dependency-check-report
     steps:
       - name: Checkout code
@@ -61,15 +61,18 @@ jobs:
           key: dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-${{ github.run_id }}
           restore-keys: |
             dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-
-      # Unpacked outside the workspace: dependency-check ships its own jars,
-      # and scanning them would report the scanner's dependencies as ours.
-      - name: Install dependency-check
+      # Unpacked from the archive committed at the root of the repository, and
+      # unpacked outside the workspace: dependency-check ships its own jars, so
+      # scanning them would report the scanner's dependencies as ours.
+      - name: Unpack dependency-check
         run: |
-          archive="$RUNNER_TEMP/dependency-check.zip"
-          curl --fail --silent --show-error --location --retry 3 --retry-all-errors \
-            --output "$archive" \
-            "https://github.com/jeremylong/DependencyCheck/releases/download/v$DEPENDENCY_CHECK_VERSION/dependency-check-$DEPENDENCY_CHECK_VERSION-release.zip"
-          echo "$DEPENDENCY_CHECK_SHA256  $archive" | sha256sum --check --strict
+          archive="dependency-check-$DEPENDENCY_CHECK_VERSION-release.zip"
+
+          if [ ! -f "$archive" ]; then
+            echo "::error::$archive is missing from the repository root. Download it from https://github.com/jeremylong/DependencyCheck/releases/tag/v$DEPENDENCY_CHECK_VERSION and commit it."
+            exit 1
+          fi
+
           unzip -q "$archive" -d "$RUNNER_TEMP"
       # Kept separate from the scan, and non fatal: when the NVD is throttling
       # or down, the cached database still gives a usable audit.
@@ -102,6 +105,9 @@ jobs:
             --disableCmake --disableAutoconf --disableComposer --disableCpan
             --disableDart --disableMixAudit --disableOpenSSL
             --disableYarnAudit
+            # Belt and braces with the exclude below: the scanner archive now
+            # sits in the workspace, and nothing here ships inside an archive.
+            --disableArchive
           )
 
           # The pnpm analyser reads pnpm-lock.yaml natively, so no npm lockfile
@@ -112,6 +118,7 @@ jobs:
             --exclude "**/.git/**" \
             --exclude "**/dist/**" \
             --exclude "**/src/assets/**" \
+            --exclude "**/dependency-check-*-release.zip" \
             --out "$REPORT_DIR" \
             --format HTML \
             --format JSON \
