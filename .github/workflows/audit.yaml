@@ -97,6 +97,10 @@ jobs:
             echo "::warning::NVD_API_KEY is not set, and the NVD throttles anonymous access heavily. Request a key at https://nvd.nist.gov/developers/request-an-api-key and add it to the repository secrets."
           fi
 
+          # Neither directory is created by the tool: it rejects an --out path
+          # that does not already exist, and validates that before scanning.
+          mkdir -p "$REPORT_DIR" "$RUNNER_TEMP/dependency-check-data"
+
           # Analysers for ecosystems this project does not use. Disabling them
           # keeps the scan quick and stops analysers from failing over tools
           # that are simply not installed on the runner.
