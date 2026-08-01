@@ -2,6 +2,7 @@
 import { localizedPath } from "@/i18n/paths";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
+import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
@@ -31,7 +32,7 @@ const languageLinks = [
 		class="group flex min-h-11 items-center gap-4 text-foreground no-underline transition-opacity duration-200 hover:opacity-90 dark:text-surface"
 		aria-label="GCC"
 	>
-		<img src="/logo.svg" alt="" width="40" height="40" loading="eager" fetchpriority="high" class="block h-10 w-10" />
+		<Logo width="40" height="40" loading="eager" fetchpriority="high" class="block h-10 w-10" alt="" />
 		<span>
 			<span class="block font-display text-[18px] font-800 leading-none tracking-[-0.025em] text-foreground dark:text-surface">GCC</span>
 			<span class="mt-1 hidden font-sans text-[11px] font-600 leading-none text-foreground-muted dark:text-ink-muted sm:block">{translateKey("navigation.brandSubtitle")}</span>

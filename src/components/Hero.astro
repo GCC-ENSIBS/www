@@ -5,6 +5,7 @@ import { socials } from "@/data/socials";
 import { localizedPath } from "@/i18n/paths";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
+import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
@@ -36,7 +37,7 @@ const translateKey = useTranslations(language);
 
 		<div class="relative min-h-[24rem] sm:min-h-[36.25rem]" style="--i: 3;">
 			<div class="absolute inset-0 overflow-hidden rounded-sm bg-paper-raised dark:bg-ink-raised">
-				<img src="/logo.svg" alt="" loading="eager" fetchpriority="high" class="absolute -right-24 -top-20 h-[28rem] w-[28rem] rotate-[-16deg] opacity-[0.13] dark:opacity-[0.10]" />
+				<Logo alt="" loading="eager" fetchpriority="high" class="absolute -right-24 -top-20 h-[28rem] w-[28rem] rotate-[-16deg] opacity-[0.13] dark:opacity-[0.10]" />
 				<div class="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,oklch(94%_0.006_270),transparent)] dark:bg-[linear-gradient(to_top,oklch(18%_0.014_270),transparent)]"></div>
 			</div>
 

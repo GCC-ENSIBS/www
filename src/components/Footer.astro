@@ -3,6 +3,7 @@ import { socials } from "@/data/socials";
 import { localizedPath } from "@/i18n/paths";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
+import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
@@ -20,7 +21,7 @@ const links = [
 	<div class="mx-auto flex w-full max-w-[96rem] flex-col gap-5 md:flex-row md:items-end md:justify-between">
 		<div class="flex items-center gap-4">
 			<a href={localizedPath(language, "/")} class="flex min-h-11 min-w-11 shrink-0 items-center text-foreground no-underline dark:text-surface">
-				<img src="/logo.svg" alt="GCC" width="42" height="42" loading="lazy" class="h-[42px] w-auto" />
+				<Logo alt="GCC" width="42" height="42" loading="lazy" class="h-[42px] w-auto" />
 			</a>
 			<div>
 				<p class="max-w-[48ch] font-sans text-sm font-500 leading-[1.65] text-foreground-muted dark:text-ink-muted">

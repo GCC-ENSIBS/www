@@ -2,6 +2,7 @@
 import { socials } from "@/data/socials";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
+import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
@@ -17,7 +18,7 @@ const joinLinks = [
 <section id="join" class="relative overflow-hidden" style="scroll-margin-top: var(--header-h, 0px);">
 	<div class="mx-auto w-full max-w-[96rem] px-4 pb-20 pt-10 sm:px-6 lg:px-8 lg:pb-28" data-animate-stagger>
 		<div class="relative overflow-hidden rounded-sm bg-foreground p-6 text-paper dark:bg-ink-card dark:text-surface sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.58fr)] lg:gap-16 lg:p-12">
-			<img src="/logo.svg" alt="" loading="lazy" class="absolute -bottom-32 -left-28 h-96 w-96 opacity-[0.06] dark:opacity-[0.10]" />
+			<Logo alt="" loading="lazy" class="absolute -bottom-32 -left-28 h-96 w-96 opacity-[0.06] dark:opacity-[0.10]" />
 			<div class="relative">
 				<h2 class="max-w-[12ch] font-display text-[clamp(2.8rem,6.4vw,5.6rem)] font-900 leading-[0.9] tracking-[-0.04em]" style="--i: 0;">
 					{translateKey("join.title")}
