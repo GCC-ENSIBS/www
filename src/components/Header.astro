@@ -8,7 +8,10 @@ const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
 
 const homeHref = localizedPath(language, "/");
-const currentPath = Astro.url.pathname === "/en" ? "/en/" : Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+const pathWithBase = Astro.url.pathname;
+const pathWithoutBase = base !== "/" && pathWithBase.startsWith(base) ? pathWithBase.slice(base.length) || "/" : pathWithBase;
+const currentPath = pathWithoutBase === "/en" ? "/en/" : pathWithoutBase;
 const pathWithoutLanguage = currentPath.startsWith("/en/") ? currentPath.slice(3) || "/" : currentPath;
 const englishPath = pathWithoutLanguage === "/" ? "/en/" : `/en${pathWithoutLanguage}`;
 const isNotFoundPage = pathWithoutLanguage === "/404" || pathWithoutLanguage === "/404/";
