@@ -18,8 +18,8 @@ const navigationLinks = [
 ];
 
 const languageLinks = [
-	{ href: isNotFoundPage ? "/" : pathWithoutLanguage, label: "FR", active: language === "fr" },
-	{ href: isNotFoundPage ? "/en/" : englishPath, label: "EN", active: language === "en" },
+	{ href: isNotFoundPage ? localizedPath("fr", "/") : localizedPath("fr", pathWithoutLanguage), label: "FR", active: language === "fr" },
+	{ href: isNotFoundPage ? localizedPath("en", "/") : localizedPath("en", pathWithoutLanguage), label: "EN", active: language === "en" },
 ];
 ---
 
