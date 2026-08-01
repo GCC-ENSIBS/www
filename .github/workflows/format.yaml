@@ -16,7 +16,7 @@ jobs:
           python-version: '3.13'
           enable-cache: true
       - name: Check YAML formatting
-        run: uvx yamlfix -v --check .
+        run: uvx yamlfix -v --check . --exclude pnpm-lock.yaml
   mdformat:
     name: Check formatting with mdformat
     runs-on: ubuntu-latest
