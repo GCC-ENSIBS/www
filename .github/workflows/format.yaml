@@ -42,8 +42,10 @@ jobs:
           version: 11.18.0
           standalone: true
       - name: Check SVG formatting
-        run: git ls-files -z -- '*.svg' | xargs -0 -r pnpx svgo --pretty && git diff
-          --exit-code
+        run: >-
+          git ls-files -z -- '*.svg'
+          | xargs -0 -r pnpx svgo --pretty
+          && git diff --exit-code
   biome:
     name: Check formatting with Biome
     runs-on: ubuntu-latest
