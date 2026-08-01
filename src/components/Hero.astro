@@ -1,11 +1,11 @@
 ---
+import Logo from "@/assets/logo.svg";
 import ActionLink from "@/components/ActionLink.astro";
 import HeroStatisticTile from "@/components/HeroStatisticTile.astro";
 import { socials } from "@/data/socials";
 import { localizedPath } from "@/i18n/paths";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
-import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);

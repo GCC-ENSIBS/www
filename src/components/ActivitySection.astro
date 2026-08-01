@@ -1,10 +1,10 @@
 ---
+import Logo from "@/assets/logo.svg";
 import ActionLink from "@/components/ActionLink.astro";
 import ActivityEventCard from "@/components/ActivityEventCard.astro";
 import { localizedPath } from "@/i18n/paths";
 import type { Language } from "@/i18n/ui";
 import { type UIKey, useTranslations } from "@/i18n/ui";
-import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);

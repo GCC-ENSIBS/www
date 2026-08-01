@@ -1,8 +1,8 @@
 ---
+import Logo from "@/assets/logo.svg";
 import { socials } from "@/data/socials";
 import type { Language } from "@/i18n/ui";
 import { useTranslations } from "@/i18n/ui";
-import Logo from "@/assets/logo.svg";
 
 const { language } = Astro.props as { language: Language };
 const translateKey = useTranslations(language);
