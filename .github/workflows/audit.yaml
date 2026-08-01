@@ -10,12 +10,149 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+      # No version here: the action reads packageManager from package.json, and
+      # throws when the two disagree.
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 11.18.0
           standalone: true
+      # pnpm-lock.yaml is git ignored, so the committed copy cannot follow
+      # package.json and a frozen install would fail.
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
       - name: Audit dependencies
         run: pnpm audit
+  dependency-check:
+    name: Audit with dependency-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Bump the two together: the checksum pins the exact published archive.
+      DEPENDENCY_CHECK_VERSION: 12.1.0
+      DEPENDENCY_CHECK_SHA256: 0e5ba6ae58e753d5841048c6c8e495dbc4c7a4ea921a2b14daeac65195700532
+      REPORT_DIR: dependency-check-report
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          standalone: true
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # Installed so the scan sees the tree that actually ships, rather than
+      # the handful of direct dependencies declared in package.json.
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      # The database is a few hundred megabytes and takes far longer to
+      # download than the scan itself. The run id makes every run save a fresh
+      # entry, while restore-keys picks up the most recent one.
+      - name: Restore the vulnerability database
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/dependency-check-data
+          key: dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-${{ github.run_id }}
+          restore-keys: |
+            dependency-check-data-${{ env.DEPENDENCY_CHECK_VERSION }}-
+      # Unpacked outside the workspace: dependency-check ships its own jars,
+      # and scanning them would report the scanner's dependencies as ours.
+      - name: Install dependency-check
+        run: |
+          archive="$RUNNER_TEMP/dependency-check.zip"
+          curl --fail --silent --show-error --location --retry 3 --retry-all-errors \
+            --output "$archive" \
+            "https://github.com/jeremylong/DependencyCheck/releases/download/v$DEPENDENCY_CHECK_VERSION/dependency-check-$DEPENDENCY_CHECK_VERSION-release.zip"
+          echo "$DEPENDENCY_CHECK_SHA256  $archive" | sha256sum --check --strict
+          unzip -q "$archive" -d "$RUNNER_TEMP"
+      # Kept separate from the scan, and non fatal: when the NVD is throttling
+      # or down, the cached database still gives a usable audit.
+      - name: Update the vulnerability database
+        continue-on-error: true
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          if [ -z "$NVD_API_KEY" ]; then
+            echo "::warning::NVD_API_KEY is not set, and the NVD throttles anonymous updates heavily. Request a key at https://nvd.nist.gov/developers/request-an-api-key and add it to the repository secrets."
+          fi
+
+          "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" \
+            --updateonly \
+            --data "$RUNNER_TEMP/dependency-check-data" \
+            ${NVD_API_KEY:+--nvdApiKey "$NVD_API_KEY"}
+      - name: Scan the project
+        run: |
+          # Analysers for ecosystems this project does not use. Disabling them
+          # keeps the scan quick and stops analysers from failing over tools
+          # that are simply not installed on the runner.
+          unused=(
+            --disableAssembly --disableMSBuild --disableNuspec --disableNugetconf
+            --disableJar --disableCentral --disableCentralCache --disableMavenInstall
+            --disableRubygems --disableBundleAudit
+            --disablePip --disablePipfile --disablePyDist --disablePyPkg --disablePoetry
+            --disableGolangDep --disableGolangMod
+            --disableCocoapodsAnalyzer --disableCarthageAnalyzer
+            --disableSwiftPackageManagerAnalyzer --disableSwiftPackageResolvedAnalyzer
+            --disableCmake --disableAutoconf --disableComposer --disableCpan
+            --disableDart --disableMixAudit --disableOpenSSL
+            --disableYarnAudit
+          )
+
+          # The pnpm analyser reads pnpm-lock.yaml natively, so no npm lockfile
+          # has to be forged for this project.
+          "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" \
+            --project "${{ github.event.repository.name }}" \
+            --scan . \
+            --exclude "**/.git/**" \
+            --exclude "**/dist/**" \
+            --exclude "**/src/assets/**" \
+            --out "$REPORT_DIR" \
+            --format HTML \
+            --format JSON \
+            --data "$RUNNER_TEMP/dependency-check-data" \
+            --noupdate \
+            "${unused[@]}"
+      # Puts the headline numbers on the run page, so the artifact only has to
+      # be opened when there is something to look at.
+      - name: Summarise the findings
+        if: always()
+        run: |
+          report="$REPORT_DIR/dependency-check-report.json"
+
+          if [ ! -f "$report" ]; then
+            echo "No report was produced." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          {
+            echo "## Dependency-check"
+            echo
+            jq -r '
+              [.dependencies[]? | select(.vulnerabilities)] as $flagged
+              | "Scanned \(.dependencies | length) dependencies, \($flagged | length) carrying a known vulnerability."
+            ' "$report"
+            echo
+
+            severities=$(jq -r '
+              [.dependencies[]?.vulnerabilities[]? | .severity // "UNKNOWN"]
+              | group_by(.) | map("- \(.[0]): \(length)") | join("\n")
+            ' "$report")
+
+            if [ -n "$severities" ]; then
+              echo "$severities"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-check-report
+          path: ${{ env.REPORT_DIR }}
+          retention-days: 30
+          if-no-files-found: warn
