@@ -67,8 +67,8 @@ importers:
         specifier: 66.7.5
         version: 66.7.5
       '@unocss/preset-web-fonts':
-        specifier: 66.7.4
-        version: 66.7.4
+        specifier: 66.7.5
+        version: 66.7.5
       '@unocss/preset-wind4':
         specifier: 66.7.5
         version: 66.7.5
@@ -1200,6 +1200,9 @@ packages:
 
   '@unocss/preset-web-fonts@66.7.4':
     resolution: {integrity: sha512-pzpaKZzcbtEVodMf6RvcjyYhgfJ6JrOzsELgo7tzKWSrUuuAuVteTXQTVNIsgjRncJ+adeUhIVTtWg6uHjj1Yg==}
+
+  '@unocss/preset-web-fonts@66.7.5':
+    resolution: {integrity: sha512-OLLTK7kswdSu51qxEm6O+AehecgCfS08Ivqo+280lKzFW7V1jXr5okeJ1ty+85oHCprJqzcD9iG1khxNRLomcA==}
 
   '@unocss/preset-wind3@66.7.4':
     resolution: {integrity: sha512-wnYilrLEYyuXzWlC1WfHB8xl+Y8ah3ZHbRBEZbOlYIDAgrGdDHxPT1EOHSHVphfoobCp8+t7eNQvjB1xBG0LaQ==}
@@ -3888,6 +3891,11 @@ snapshots:
   '@unocss/preset-web-fonts@66.7.4':
     dependencies:
       '@unocss/core': 66.7.4
+      ofetch: 1.5.1
+
+  '@unocss/preset-web-fonts@66.7.5':
+    dependencies:
+      '@unocss/core': 66.7.5
       ofetch: 1.5.1
 
   '@unocss/preset-wind3@66.7.4':
