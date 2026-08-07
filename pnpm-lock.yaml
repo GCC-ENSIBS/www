@@ -73,8 +73,8 @@ importers:
         specifier: 66.7.5
         version: 66.7.5
       '@unocss/transformer-directives':
-        specifier: 66.7.4
-        version: 66.7.4
+        specifier: 66.7.5
+        version: 66.7.5
       '@unocss/transformer-variant-group':
         specifier: 66.7.5
         version: 66.7.5
@@ -1230,6 +1230,9 @@ packages:
 
   '@unocss/transformer-directives@66.7.4':
     resolution: {integrity: sha512-mMS+9NWMI7riWW9LI9+XibbAs6kJuhEezqQ+99d0s40k2w+io7vJab2i+LkDDyCmdaPL5tdqcb48PXu9mzvAeQ==}
+
+  '@unocss/transformer-directives@66.7.5':
+    resolution: {integrity: sha512-VMJApXXOwlDubkW+cNMmOkfxLefFupJr+yU23gGYUB2NPsuVltc8H5CDM0gfVebpeL5CUW05evxzEAk2wsju+Q==}
 
   '@unocss/transformer-variant-group@66.7.4':
     resolution: {integrity: sha512-3+fdrcpg7f8wltk7Ph4nK817HkwVfKoKOImPuD9nnb3T6RVUuwDq3N3XZK4vrwlFyEJqNLDBhzHF3rCGymreOg==}
@@ -3939,6 +3942,12 @@ snapshots:
     dependencies:
       '@unocss/core': 66.7.4
       '@unocss/rule-utils': 66.7.4
+      css-tree: 3.2.1
+
+  '@unocss/transformer-directives@66.7.5':
+    dependencies:
+      '@unocss/core': 66.7.5
+      '@unocss/rule-utils': 66.7.5
       css-tree: 3.2.1
 
   '@unocss/transformer-variant-group@66.7.4':
